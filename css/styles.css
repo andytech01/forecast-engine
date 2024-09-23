@@ -1,0 +1,113 @@
+.reportview-container .main .block-container {
+  margin-bottom: 0rem !important;
+}
+#MainMenu {
+  visibility: hidden;
+}
+footer {
+  visibility: hidden;
+}
+.stDeployButton {
+  visibility: hidden;
+}
+.stTextInput input {
+  background-color: #e0efff;
+}
+
+/* Adjusting the sidebar position */
+[data-testid="stSidebarUserContent"] {
+  padding-top: 0rem;
+}
+
+/* Adjusting the sidebar width and color*/
+[data-testid="stSidebar"] {
+  background-image: linear-gradient(#ebf6ff, #ebf6ff);
+  max-width: 500px;
+  /* Adding shadow to the div */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+[data-testid="stFileUploadDropzone"] {
+  /* Adding shadow to the div */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+[data-testid="stFileUploader"] * {
+  color: #201547;
+}
+
+/* Style for the selected option (single select box)*/
+.stSelectbox .st-cj {
+  background-color: rgb(255, 75, 75);
+  color: white;
+  border: 2px solid rgb(255, 75, 75); /* Border of the same color as background */
+  padding: 3px 10px; /* Padding to space out the content */
+  border-radius: 6px; /* Rounded corners */
+  /* Adding shadow to the div */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Button styling */
+.stButton > button,
+.stFileUploader .btn {
+  background-color: #4f8bf9 !important;
+  color: white !important;
+  border: none;
+  width: 100%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Adding shadow */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effects */
+}
+
+.stButton > button:hover,
+.stFileUploader .btn:hover {
+  transform: translateY(-2px); /* Slight lift on hover */
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* Download link styling */
+a[href^="data:file/csv"],
+a[href^="data:application/octet-stream"] {
+  background-color: #4f8bf9;
+  color: white;
+  padding: 0.5em 1em;
+  border-radius: 0.25em;
+  text-decoration: none;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Adding shadow */
+  display: inline-block; /* Required to apply some CSS properties */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effects */
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+a[href^="data:file/csv"]:hover,
+a[href^="data:application/octet-stream"]:hover {
+  transform: translateY(-2px); /* Slight lift on hover */
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* Customize the style */
+.stAlert {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+[data-testid="stNotification"] p {
+  font-size: 20px !important;
+  /* text-decoration: underline; */
+  text-align: center !important;
+  /* font-weight: bold; */
+  margin: auto !important;
+  color: #e56a54 !important;
+}
+
+/* Adjusting the style of main area */
+.element-container:has(.stPlotlyChart),
+.element-container:has(.stDataFrame),
+[data-testid="stMarkdownContainer"]:has(table) {
+  display: flex;
+  justify-content: center;
+}
+
+[data-testid="stMarkdownContainer"] hr {
+  margin-top: 0;
+  margin-bottom: 3em;
+}

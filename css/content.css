@@ -1,0 +1,10 @@
+.content-title {
+	color: #201547;
+	font-size: 2em;
+	font-weight: bold;
+	margin: 0;
+}
+
+[data-testid="block-container"] {
+	padding-top: 2em;
+}
