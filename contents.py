@@ -1,9 +1,11 @@
+from turtle import up
 import pandas as pd
 import numpy as np
 import xgboost as xgb
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
 import streamlit as st
+
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -52,58 +54,187 @@ def plotly_table(data, width=500, use_container_width=False):
 
 
 def ml_modeling():
+    train_button = None
+    train_done = False
+    if "model_config" not in st.session_state:
+        st.session_state.model_config = False
+
     # Upload the dataset in the sidebar
+    if "uploaded_file" not in st.session_state:
+        st.session_state.uploaded_file = None
+
     uploaded_file = st.sidebar.file_uploader(
         "Upload your dataset (CSV or Excel)", type=["csv", "xlsx"]
     )
 
-    data_analysis_done = False
-    train_done = False
-    model_config = False
+    if uploaded_file is not None:
+        st.session_state.uploaded_file = uploaded_file
 
-    if not uploaded_file:
+    if not st.session_state.uploaded_file:
         st.warning(
             "Please upload your dataset, select target and feature variable to proceed with the Data Analysis and Machine Learning"
         )
 
     else:
+        st.session_state.uploaded_file.seek(0)
+        uploaded_file = st.session_state.uploaded_file
         if uploaded_file.name.endswith(".csv"):
             data = pd.read_csv(uploaded_file)
         else:
             data = pd.read_excel(uploaded_file, engine="openpyxl")
 
-        # Select features and target variable in the sidebar
-        ts_col = st.sidebar.selectbox(
-            "Select Time Series Variable", [""] + data.columns.tolist()
+        st.write("### Assign Data Field")
+        st.markdown(
+            f'<p style="color:red; font-size:small">Uploaded file: {uploaded_file.name}</p>',
+            unsafe_allow_html=True,
         )
 
-        target = st.sidebar.selectbox(
-            "Select Target Variable", [""] + data.columns.tolist()
-        )
+        # Select features and target variable in the sidebar
+        col1, col2 = st.columns(2)
+
+        with col1:
+            ts_col = st.selectbox(
+                "Select Time Series Variable", [""] + data.columns.tolist()
+            )
+
+        with col2:
+            target = st.selectbox(
+                "Select Target Variable", [""] + data.columns.tolist()
+            )
+
         if target and ts_col:
             feature_cols = data.drop(columns=[ts_col, target]).columns.tolist()
-            category_features = st.sidebar.multiselect(
-                "Select Categorical Features", feature_cols, default=feature_cols
+
+            category_features = st.multiselect(
+                "Select Categorical Features", feature_cols, default=[]
             )
 
-            numerical_features = st.sidebar.multiselect(
-                "Select Numerical Features", feature_cols, default=feature_cols
-            )
+            if category_features:
+                numerical_options = [
+                    col for col in feature_cols if col not in category_features
+                ]
+                numerical_features = st.multiselect(
+                    "Select Numerical Features", numerical_options, default=[]
+                )
+            else:
+                numerical_features = st.multiselect(
+                    "Select Numerical Features", feature_cols, default=[], disabled=True
+                )
 
-            features = numerical_features
+            features = category_features + numerical_features
 
         if target and features and st.sidebar.button("Analysis Data"):
-            original_df = data.copy()
-            original_df["year"] = original_df["year"].astype(str)
+            st.session_state.model_config = False
+            original_df = data[features].copy()
+            for col in category_features:
+                original_df[col] = original_df[col].astype(str)
             st.write("### Data Overview")
             st.write(original_df)
-            data_analysis_done = True
 
-        if target and features and st.sidebar.button("Configure Model"):
-            model_config = True
+            # Display basic statistics in the main area
+            st.write("### Data Statistics")
+            st.write(original_df.describe(include="all"))
+
+            # Histogram of the target variable in the main area
+            st.write("### Histogram of Target Variable")
+            fig1 = px.histogram(data, x=target, nbins=30)
+            fig1.update_layout(
+                width=900,
+                height=400,
+                autosize=False,
+                margin=dict(t=50, b=50, l=50, r=50),
+                bargap=0.05,
+            )
+            fig1.update_layout(template="plotly_white")
+            st.plotly_chart(
+                fig1,
+                use_container_width=True,
+                config={"displayModeBar": False, "displaylogo": False},
+            )
+
+            # Heatmap of feature-target relationships in the main area
+            st.write("### Heatmap of Variable Relationships")
+            correlation_matrix = data[[target] + features].corr()
+            coolwarm_scale = [[0, "blue"], [0.5, "white"], [1, "red"]]
+            fig2 = go.Figure(
+                data=go.Heatmap(
+                    z=correlation_matrix,
+                    x=correlation_matrix.columns,
+                    y=correlation_matrix.columns,
+                    colorscale=coolwarm_scale,
+                )
+            )
+            fig2.update_layout(
+                width=900,
+                height=900,
+                autosize=False,
+                margin=dict(t=50, b=50, l=50, r=50),
+            )
+            fig2.update_layout(template="plotly_white", showlegend=False)
+            st.plotly_chart(
+                fig2,
+                use_container_width=True,
+                config={"displayModeBar": False, "displaylogo": False},
+            )
+
+        if (
+            target
+            and features
+            and (st.sidebar.button("Configure Model") or st.session_state.model_config)
+        ):
+            st.session_state.model_config = True
+            st.write("### Model Configuration")
+            st.markdown(
+                '<p style="color:red; background-color:yellow; padding: 10px; border-radius: 5px;">Caution: Only adjust hyperparameters if you\'re confident about their effect</p>',
+                unsafe_allow_html=True,
+            )
+
+            selected_model = st.selectbox(
+                "Select ML Models", ["XGBoost", "Prophet", "Linear Regression"]
+            )
+
+            if selected_model == "XGBoost":
+                objective = st.selectbox(
+                    "Objective",
+                    [
+                        "reg:squarederror",
+                        "reg:absoluteerror",
+                        "reg:pseudohubererror",
+                        "reg:gamma",
+                        "reg:tweedie",
+                    ],
+                )
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    # 使用 slider 替代 number_input
+                    max_depth = st.slider(
+                        "Max Depth", min_value=1, max_value=10, value=4, step=1
+                    )
+                    learning_rate = st.slider(
+                        "Learning Rate",
+                        min_value=0.01,
+                        max_value=0.1,
+                        value=0.03,
+                        step=0.005,
+                        format="%.3f",
+                    )
+
+                with col2:
+                    n_estimators = st.slider(
+                        "Number of Estimators",
+                        min_value=100,
+                        max_value=500,
+                        value=200,
+                        step=50,
+                    )
+
+                # Select the hyperparameters for XGBoost
+
+            train_button = st.sidebar.button("Train Model")
 
         # ML Modeling in the sidebar
-        if target and features and st.sidebar.button("Train Model"):
+        if target and features and train_button:
             split_rate = 0.8
             split_index = int(len(data) * split_rate)
             train_df = data.iloc[:split_index, :].reset_index(drop=True)
@@ -112,14 +243,15 @@ def ml_modeling():
             X_train = train_df[features]
             y_train = train_df[target]
 
-            model = xgb.XGBRegressor(
-                max_depth=4,
-                learning_rate=0.001,
-                n_estimators=250,
-                objective="reg:absoluteerror",
-                n_jobs=-1,
-                random_state=123,
-            )
+            if selected_model == "XGBoost":
+                model = xgb.XGBRegressor(
+                    max_depth=max_depth,
+                    learning_rate=learning_rate,
+                    n_estimators=n_estimators,
+                    objective=objective,
+                    n_jobs=-1,
+                    random_state=123,
+                )
 
             model.fit(X_train, y_train)
 
@@ -156,57 +288,6 @@ def ml_modeling():
             )
 
             train_done = True
-
-    if data_analysis_done:
-        # Display basic statistics in the main area
-        st.write("### Data Statistics")
-        st.write(data.drop(columns=["year", "month", "week_of_year"]).describe())
-
-        # Histogram of the target variable in the main area
-        st.write("### Histogram of Target Variable")
-        fig1 = px.histogram(data, x=target, nbins=30)
-        fig1.update_layout(
-            width=900,
-            height=400,
-            autosize=False,
-            margin=dict(t=50, b=50, l=50, r=50),
-            bargap=0.05,
-        )
-        fig1.update_layout(template="plotly_white")
-        st.plotly_chart(
-            fig1,
-            use_container_width=True,
-            config={"displayModeBar": False, "displaylogo": False},
-        )
-
-        # Heatmap of feature-target relationships in the main area
-        st.write("### Heatmap of Variable Relationships")
-        correlation_matrix = data[[target] + features].corr()
-        coolwarm_scale = [[0, "blue"], [0.5, "white"], [1, "red"]]
-        fig2 = go.Figure(
-            data=go.Heatmap(
-                z=correlation_matrix,
-                x=correlation_matrix.columns,
-                y=correlation_matrix.columns,
-                colorscale=coolwarm_scale,
-            )
-        )
-        fig2.update_layout(
-            width=900, height=900, autosize=False, margin=dict(t=50, b=50, l=50, r=50)
-        )
-        fig2.update_layout(template="plotly_white", showlegend=False)
-        st.plotly_chart(
-            fig2,
-            use_container_width=True,
-            config={"displayModeBar": False, "displaylogo": False},
-        )
-
-    if model_config:
-        st.write("### Model Configuration")
-        st.write(f"#### Time Series Variable: {ts_col}")
-        st.write(f"#### Target Variable: {target}")
-        st.write(f"#### Categorical Features: {category_features}")
-        st.write(f"#### Numerical Features: {numerical_features}")
 
     if train_done:
         # Plotting the real vs predicted values in the main area

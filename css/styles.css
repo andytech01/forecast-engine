@@ -34,17 +34,6 @@ footer {
   color: #201547;
 }
 
-/* Style for the selected option (single select box)*/
-.stSelectbox .st-cj {
-  background-color: rgb(255, 75, 75);
-  color: white;
-  border: 2px solid rgb(255, 75, 75); /* Border of the same color as background */
-  padding: 3px 10px; /* Padding to space out the content */
-  border-radius: 6px; /* Rounded corners */
-  /* Adding shadow to the div */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);
-}
-
 /* Button styling */
 .stButton > button,
 .stFileUploader .btn {

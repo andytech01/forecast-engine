@@ -34,6 +34,23 @@ with open("css/content.css", "r") as f:
     content_css = f.read()
     st.markdown(f"<style>{content_css}</style>", unsafe_allow_html=True)
 
+
+st.markdown(
+    """
+    <style>
+        .stRadio > label {
+            display: flex;
+            flex-direction: row;
+        }
+        .stRadio > div {
+            display: flex;
+            flex-direction: row;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 ### Sidebar content
 with open("images/logo-small-rgb.png", "rb") as img_file:
     logo = base64.b64encode(img_file.read()).decode()
