@@ -67,7 +67,7 @@ st.sidebar.markdown(
 with st.sidebar:
     choose = option_menu(
         menu_title="",
-        options=["Data Analysis & Modeling", "Forecasting", "History Tasks"],
+        options=["ML Modeling", "Forecasting", "History Tasks"],
         # icons=['lightbulb', 'graph-up', 'card-list'],
         icons=[" ", " ", " "],
         menu_icon="app-indicator",
@@ -86,10 +86,10 @@ with st.sidebar:
     )
 st.sidebar.markdown("---")
 
-if choose == "Data Analysis & Modeling":
+if choose == "ML Modeling":
     st.markdown(
         """
-        <div class="content-title">💡 Data Analysis & Modeling</div>
+        <div class="content-title">💡 Machine Learning Modeling</div>
         """,
         unsafe_allow_html=True,
     )

@@ -1,4 +1,3 @@
-from turtle import up
 import pandas as pd
 import numpy as np
 import xgboost as xgb
@@ -12,54 +11,18 @@ import plotly.express as px
 import pickle
 from datetime import datetime
 import base64
+from utils import *
 
 import os
-import re
-
-
-def plotly_table(data, width=500, use_container_width=False):
-    ### Create a Plotly table
-    fig = go.Figure(
-        data=[
-            go.Table(
-                header=dict(
-                    values=["<b>" + col + "</b>" for col in data.columns],
-                    fill_color="#4f8bf9",
-                    font=dict(size=20, color="white"),  # Adjusting font size
-                    align="center",
-                    height=40,
-                ),
-                cells=dict(
-                    values=[data[col] for col in data.columns],
-                    fill_color="white",
-                    font=dict(size=18, color="black"),  # Adjusting font size
-                    align="center",
-                    height=30,
-                    line=dict(color="gray", width=1),
-                ),
-            )
-        ]
-    )
-
-    # Adjusting the layout
-    fig.update_layout(
-        width=width,  # Adjust width
-        margin=dict(t=10, b=10, l=10, r=10),  # Adjust margins
-    )
-    fig.update_layout(template="plotly_white")
-
-    # Hide the default Plotly modebar
-    config = {"displayModeBar": False, "displaylogo": False}
-    st.plotly_chart(fig, use_container_width=use_container_width, config=config)
 
 
 def ml_modeling():
+    # Configurations
     train_button = None
     train_done = False
     if "model_config" not in st.session_state:
         st.session_state.model_config = False
 
-    # Upload the dataset in the sidebar
     if "uploaded_file" not in st.session_state:
         st.session_state.uploaded_file = None
 
@@ -71,8 +34,9 @@ def ml_modeling():
         st.session_state.uploaded_file = uploaded_file
 
     if not st.session_state.uploaded_file:
-        st.warning(
-            "Please upload your dataset, select target and feature variable to proceed with the Data Analysis and Machine Learning"
+        st.markdown(
+            '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">Please upload your dataset, select target and feature variable to proceed with Machine Learning Modeling</p>',
+            unsafe_allow_html=True,
         )
 
     else:
@@ -229,6 +193,14 @@ def ml_modeling():
                         step=50,
                     )
 
+                    validation_rate = st.slider(
+                        "Validation Rate",
+                        min_value=0.1,
+                        max_value=0.4,
+                        value=0.2,
+                        step=0.05,
+                    )
+
                 # Select the hyperparameters for XGBoost
 
             train_button = st.sidebar.button("Train Model")
@@ -374,27 +346,6 @@ def ml_modeling():
         st.markdown(buttons_html, unsafe_allow_html=True)
 
 
-def parse_filename(filename):
-    pattern = r"_([\d\.]*)_([\d\.]*)_(\d{8})_(\d{4})"
-    match = re.search(pattern, filename)
-    if match:
-        return match.groups()
-    return None, None
-
-
-def combine_date_time(row):
-    datetime_str = f"{row['Date']} {row['Time']}"
-    return pd.to_datetime(datetime_str, format="%Y%m%d %H%M")
-
-
-def create_download_link(filename, folder):
-    filepath = os.path.join(folder, filename)
-    with open(filepath, "rb") as f:
-        bytes = f.read()
-    b64 = base64.b64encode(bytes).decode()
-    return f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}">Download</a>'
-
-
 def history_tasks():
     model_files = os.listdir("model/")
     result_files = os.listdir("result/")
@@ -439,7 +390,10 @@ def forecasting():
     )
 
     if not uploaded_file:
-        st.warning("Please upload your dataset for Prediction")
+        st.markdown(
+            '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">Please upload your dataset for Prediction</p>',
+            unsafe_allow_html=True,
+        )
 
     else:
         if uploaded_file.name.endswith(".csv"):
