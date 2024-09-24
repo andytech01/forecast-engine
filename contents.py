@@ -1,4 +1,3 @@
-from pdb import run
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
@@ -245,7 +244,6 @@ def ml_modeling():
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    # 使用 slider 替代 number_input
                     max_depth = st.slider(
                         "Max Depth", min_value=1, max_value=10, value=4, step=1
                     )
@@ -292,6 +290,11 @@ def ml_modeling():
 
         # ML Modeling in the sidebar
         if target and features and train_button:
+            running_message = st.markdown(
+                '<p style="color:black; background-color:lightyellow; margin:auto; padding:10px; border-radius:5px; text-align:center;">ML Model Training...</p>',
+                unsafe_allow_html=True,
+            )
+
             split_rate = 1 - validation_rate
             split_index = int(len(data) * split_rate)
             train_df = data.iloc[:split_index, :].reset_index(drop=True)
@@ -303,6 +306,16 @@ def ml_modeling():
             model = get_model_instance(selected_model, parameters)
 
             model.train(X_train, y_train)
+
+            time.sleep(12)
+            running_message.empty()
+
+            success_message = st.markdown(
+                '<p style="color:black; background-color:lightgreen; margin:auto; padding:10px; border-radius:5px; text-align:center;">Train Successfully!</p>',
+                unsafe_allow_html=True,
+            )
+            time.sleep(1)
+            success_message.empty()
 
             # Predict the test data
             X_test = test_df[features]
