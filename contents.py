@@ -1,8 +1,9 @@
+from pdb import run
 import pandas as pd
 import numpy as np
-import xgboost as xgb
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
+import time
 import streamlit as st
 
 import plotly.graph_objects as go
@@ -21,11 +22,27 @@ def ml_modeling():
     # Configurations
     train_button = None
     train_done = False
+    features = None
     if "model_config" not in st.session_state:
         st.session_state.model_config = False
 
     if "uploaded_file" not in st.session_state:
         st.session_state.uploaded_file = None
+
+    if "ts_col" not in st.session_state:
+        st.session_state.ts_col = None
+
+    if "target" not in st.session_state:
+        st.session_state.target = None
+
+    if "category_features" not in st.session_state:
+        st.session_state.category_features = []
+
+    if "numerical_features" not in st.session_state:
+        st.session_state.numerical_features = []
+
+    if "parameters" not in st.session_state:
+        st.session_state.parameters = None
 
     uploaded_file = st.sidebar.file_uploader(
         "Upload your dataset (CSV or Excel)", type=["csv", "xlsx"]
@@ -57,36 +74,89 @@ def ml_modeling():
         # Select features and target variable in the sidebar
         col1, col2 = st.columns(2)
 
+        ts_col = st.session_state.ts_col
+        target = st.session_state.target
+        category_features = st.session_state.category_features
+        numerical_features = st.session_state.numerical_features
+
         with col1:
-            ts_col = st.selectbox(
-                "Select Time Series Variable", [""] + data.columns.tolist()
-            )
-
-        with col2:
-            target = st.selectbox(
-                "Select Target Variable", [""] + data.columns.tolist()
-            )
-
-        if target and ts_col:
-            feature_cols = data.drop(columns=[ts_col, target]).columns.tolist()
-
-            category_features = st.multiselect(
-                "Select Categorical Features", feature_cols, default=[]
-            )
-
-            if category_features:
-                numerical_options = [
-                    col for col in feature_cols if col not in category_features
-                ]
-                numerical_features = st.multiselect(
-                    "Select Numerical Features", numerical_options, default=[]
+            if ts_col:
+                ts_col = st.selectbox(
+                    "Select Time Series Variable",
+                    data.columns.tolist(),
+                    index=data.columns.tolist().index(ts_col),
                 )
             else:
-                numerical_features = st.multiselect(
-                    "Select Numerical Features", feature_cols, default=[], disabled=True
+                ts_col = st.selectbox(
+                    "Select Time Series Variable", [""] + data.columns.tolist()
                 )
 
+        with col2:
+            if target:
+                target = st.selectbox(
+                    "Select Target Variable",
+                    data.columns.tolist(),
+                    index=data.columns.tolist().index(target),
+                )
+            else:
+                target = st.selectbox(
+                    "Select Target Variable", [""] + data.columns.tolist()
+                )
+
+        if ts_col and target:
+            feature_cols = data.drop(columns=[ts_col, target]).columns.tolist()
+            category_features = st.multiselect(
+                "Select Categorical Features",
+                feature_cols,
+                default=category_features,
+            )
+
+            numerical_options = [
+                col for col in feature_cols if col not in category_features
+            ]
+
+            numerical_features = st.multiselect(
+                "Select Numerical Features",
+                numerical_options,
+                default=numerical_features,
+            )
+
             features = category_features + numerical_features
+
+        if ts_col or target or features:
+            save_button = None
+            if (
+                ts_col == st.session_state.ts_col
+                and target == st.session_state.target
+                and category_features == st.session_state.category_features
+                and numerical_features == st.session_state.numerical_features
+            ):
+                st.markdown(
+                    '<button class="gray-button" disabled>Save Assignment</button>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                save_button = st.button("Save Assignment")
+
+            if save_button:
+                running_message = st.markdown(
+                    '<p style="color:black; background-color:lightyellow; margin:auto; padding:10px; border-radius:5px; text-align:center;">Saving...</p>',
+                    unsafe_allow_html=True,
+                )
+                st.session_state.ts_col = ts_col
+                st.session_state.target = target
+                st.session_state.category_features = category_features
+                st.session_state.numerical_features = numerical_features
+
+                time.sleep(0.6)
+                running_message.empty()
+
+                success_message = st.markdown(
+                    '<p style="color:black; background-color:lightgreen; margin:auto; padding:10px; border-radius:5px; text-align:center;">Save Successfully!</p>',
+                    unsafe_allow_html=True,
+                )
+                time.sleep(1)
+                success_message.empty()
 
         if target and features and st.sidebar.button("Analysis Data"):
             st.session_state.model_config = False
@@ -150,16 +220,16 @@ def ml_modeling():
             st.session_state.model_config = True
             st.write("### Model Configuration")
             st.markdown(
-                '<p style="color:red; background-color:yellow; padding: 10px; border-radius: 5px;">Caution: Only adjust hyperparameters if you\'re confident about their effect</p>',
+                '<p style="color:red; background-color:yellow; padding:10px; border-radius:5px; text-align:center">Caution: Only adjust hyperparameters if you\'re confident about their effect</p>',
                 unsafe_allow_html=True,
             )
 
             # TODO: Add more models
             selected_model = st.selectbox(
-                "Select ML Models", ["XGBoostRegressor", "Prophet", "Linear Regression"]
+                "Select ML Model", ["XGBoostRegressor", "Prophet", "Linear Regression"]
             )
 
-            selected_model = "XGBoostRegressor"
+            # selected_model = "XGBoostRegressor"
 
             if selected_model == "XGBoostRegressor":
                 objective = st.selectbox(
@@ -214,6 +284,9 @@ def ml_modeling():
                     "n_jobs": -1,
                     "random_state": 123,
                 }
+            else:
+                # TODO: Add parameters for other models
+                return
 
             train_button = st.sidebar.button("Train Model")
 
@@ -351,8 +424,12 @@ def ml_modeling():
 
 
 def history_tasks():
-    model_files = os.listdir("model/")
-    result_files = os.listdir("result/")
+
+    model_path = "history/model/"
+    result_path = "history/result/"
+
+    model_files = os.listdir(model_path)
+    result_files = os.listdir(result_path)
 
     # Get the model date and time
     model_eval_dates_times = [parse_filename(f) for f in model_files]
@@ -364,10 +441,10 @@ def history_tasks():
             "MAE": [g[0] for g in model_eval_dates_times],
             "MAPE": [g[1] for g in model_eval_dates_times],
             "Trained Model File": [
-                create_download_link(f, "model/") for f in model_files
+                create_download_link(f, model_path) for f in model_files
             ],
             "Validation Result": [
-                create_download_link(f, "result/") for f in result_files
+                create_download_link(f, result_path) for f in result_files
             ],
         }
     ).reset_index(drop=True)
@@ -381,7 +458,7 @@ def history_tasks():
     df["Version"] = "V " + (df.shape[0] - df.index).astype(str) + ".0"
     df.index = df.index + 1
 
-    table_html = df.to_html(escape=False)
+    table_html = df.to_html(escape=False, index=False, justify="center")
 
     st.write(table_html, unsafe_allow_html=True)
 

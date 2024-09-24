@@ -45,6 +45,17 @@ footer {
   transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effects */
 }
 
+.gray-button {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  border: none;
+  padding: 5px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 100%;
+}
+
 .stButton > button:hover,
 .stFileUploader .btn:hover {
   transform: translateY(-2px); /* Slight lift on hover */
