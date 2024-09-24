@@ -159,6 +159,7 @@ def ml_modeling():
                 )
                 time.sleep(1)
                 success_message.empty()
+                st.session_state.model_config = False
 
         if target and features and st.sidebar.button("Analysis Data"):
             st.session_state.model_config = False
@@ -402,7 +403,7 @@ def ml_modeling():
         plotly_bar(feature_importance_df)
 
         # Add timestamp to the filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Save the field assignment as json
         field_assignment = {
@@ -531,7 +532,9 @@ def history_tasks():
         exe_time = selected_task.split("(")[0]
         date_string = exe_time.split(" ")[0].replace("-", "")
         time_string = (
-            exe_time.split(" ")[1].split(":")[0] + exe_time.split(" ")[1].split(":")[1]
+            exe_time.split(" ")[1].split(":")[0]
+            + exe_time.split(" ")[1].split(":")[1]
+            + exe_time.split(" ")[1].split(":")[2]
         )
         for file in model_files:
             if date_string in file and time_string in file:

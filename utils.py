@@ -10,7 +10,7 @@ import re
 
 def combine_date_time(row):
     datetime_str = f"{row['Date']} {row['Time']}"
-    return pd.to_datetime(datetime_str, format="%Y%m%d %H%M")
+    return pd.to_datetime(datetime_str, format="%Y%m%d %H%M%S")
 
 
 def create_download_link(filename, folder):
@@ -84,7 +84,7 @@ def plotly_bar(data, use_container_width=False):
 
 
 def parse_filename(filename):
-    pattern = r"_([\d\.]*)_([\d\.]*)_(\d{8})_(\d{4})"
+    pattern = r"_([\d\.]*)_([\d\.]*)_(\d{8})_(\d{6})"
     match = re.search(pattern, filename)
     if match:
         return match.groups()
