@@ -10,9 +10,9 @@ from contents import *
 
 # Set the page config
 st.set_page_config(
-    page_title="NEXT50 Forecasting Engine",
-    page_icon="images/logo-small-rgb.png",
-    layout="wide",
+    page_title="Forecasting Engine",
+    page_icon="images/logo-white-rgb.png",
+    # layout="wide",
     initial_sidebar_state="expanded",
 )
 
@@ -52,15 +52,17 @@ st.markdown(
 )
 
 ### Sidebar content
-with open("images/logo-small-rgb.png", "rb") as img_file:
+with open("images/logo.png", "rb") as img_file:
     logo = base64.b64encode(img_file.read()).decode()
 
 st.sidebar.markdown(
     f"""
-    <div style="text-align: center; margin: 1em 0;">
-        <img src="data:image/png;base64,{logo}" width="80"/>
-    </div>
-    <div class='big-font'>Forecasting Engine</div>""",
+    <div style="display:flex; flex-direction:column">
+        <div style="text-align: center; margin: 2em 0;">
+            <img src="data:image/png;base64,{logo}" width="200"/>
+        </div>
+        <!-- <div class='big-font'>Forecasting Engine</div> -->
+    </div>""",
     unsafe_allow_html=True,
 )
 

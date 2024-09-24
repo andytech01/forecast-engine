@@ -538,7 +538,7 @@ def forecasting():
 
         options = (df["Execute Time"].astype(str) + " - " + df["Version"]).tolist()
 
-        history_model = st.sidebar.selectbox("Select Model", options)
+        history_model = st.sidebar.selectbox("Select Trained Model", options)
 
         if history_model and st.sidebar.button("Predict"):
             version = history_model.split(" - ")[1]
