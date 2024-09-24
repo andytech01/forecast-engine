@@ -425,8 +425,8 @@ def ml_modeling():
 
 def history_tasks():
 
-    model_path = "history/model/"
-    result_path = "history/result/"
+    model_path = "database/model/"
+    result_path = "database/result/"
 
     model_files = os.listdir(model_path)
     result_files = os.listdir(result_path)
