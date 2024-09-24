@@ -447,11 +447,11 @@ def forecasting():
 
             if not all(feature in data.columns for feature in feature_list):
                 st.markdown(
-                    '<p style="color:red; background-color:pink; padding: 10px; border-radius: 5px;text-align:center">Error: Please make sure the feature columns are the same as the selected model</p>',
+                    '<p style="color:red; background-color:pink; padding: 10px; border-radius: 5px;text-align:center">Error: Missing required features. Ensure your data contains the following features expected by the model</p>',
                     unsafe_allow_html=True,
                 )
 
-                st.write("### Feature List for Selected Model")
+                st.write("**Feature List for Selected Model**")
                 st.write(feature_list)
 
                 return
