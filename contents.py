@@ -11,6 +11,7 @@ import plotly.express as px
 import pickle
 from datetime import datetime
 import base64
+from ml_toolkit.model_factory import get_model_instance
 from utils import *
 
 import os
@@ -153,11 +154,14 @@ def ml_modeling():
                 unsafe_allow_html=True,
             )
 
+            # TODO: Add more models
             selected_model = st.selectbox(
-                "Select ML Models", ["XGBoost", "Prophet", "Linear Regression"]
+                "Select ML Models", ["XGBoostRegressor", "Prophet", "Linear Regression"]
             )
 
-            if selected_model == "XGBoost":
+            selected_model = "XGBoostRegressor"
+
+            if selected_model == "XGBoostRegressor":
                 objective = st.selectbox(
                     "Objective",
                     [
@@ -202,12 +206,20 @@ def ml_modeling():
                     )
 
                 # Select the hyperparameters for XGBoost
+                parameters = {
+                    "max_depth": max_depth,
+                    "learning_rate": learning_rate,
+                    "n_estimators": n_estimators,
+                    "objective": objective,
+                    "n_jobs": -1,
+                    "random_state": 123,
+                }
 
             train_button = st.sidebar.button("Train Model")
 
         # ML Modeling in the sidebar
         if target and features and train_button:
-            split_rate = 0.8
+            split_rate = 1 - validation_rate
             split_index = int(len(data) * split_rate)
             train_df = data.iloc[:split_index, :].reset_index(drop=True)
             test_df = data.iloc[split_index:, :].reset_index(drop=True)
@@ -215,17 +227,9 @@ def ml_modeling():
             X_train = train_df[features]
             y_train = train_df[target]
 
-            if selected_model == "XGBoost":
-                model = xgb.XGBRegressor(
-                    max_depth=max_depth,
-                    learning_rate=learning_rate,
-                    n_estimators=n_estimators,
-                    objective=objective,
-                    n_jobs=-1,
-                    random_state=123,
-                )
+            model = get_model_instance(selected_model, parameters)
 
-            model.fit(X_train, y_train)
+            model.train(X_train, y_train)
 
             # Predict the test data
             X_test = test_df[features]
@@ -244,20 +248,20 @@ def ml_modeling():
 
             test_df["prediction"] = np.round((y_pred + y_test) / 2, 2)
 
-            # Calculate feature importance
-            importance_dict = model.get_booster().get_score(importance_type="weight")
-            total_importance = sum(importance_dict.values())
-            importance_rates = {
-                feature: round(importance / total_importance, 4)
-                for feature, importance in importance_dict.items()
-            }
-            sorted_importance_rates = dict(
-                sorted(importance_rates.items(), key=lambda item: item[1], reverse=True)
-            )
+            # # Calculate feature importance
+            # importance_dict = model.get_booster().get_score(importance_type="weight")
+            # total_importance = sum(importance_dict.values())
+            # importance_rates = {
+            #     feature: round(importance / total_importance, 4)
+            #     for feature, importance in importance_dict.items()
+            # }
+            # sorted_importance_rates = dict(
+            #     sorted(importance_rates.items(), key=lambda item: item[1], reverse=True)
+            # )
 
-            feature_importance_df = pd.DataFrame(
-                sorted_importance_rates.items(), columns=["Feature", "Importance Rate"]
-            )
+            # feature_importance_df = pd.DataFrame(
+            #     sorted_importance_rates.items(), columns=["Feature", "Importance Rate"]
+            # )
 
             train_done = True
 
@@ -317,8 +321,8 @@ def ml_modeling():
             config={"displayModeBar": False, "displaylogo": False},
         )
 
-        st.write("### Feature Importance")
-        plotly_table(feature_importance_df, width=1000)
+        # st.write("### Feature Importance")
+        # plotly_table(feature_importance_df, width=1000)
 
         # Add timestamp to the filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
@@ -350,10 +354,9 @@ def history_tasks():
     model_files = os.listdir("model/")
     result_files = os.listdir("result/")
 
-    # 解析文件名以获取日期和时间
+    # Get the model date and time
     model_eval_dates_times = [parse_filename(f) for f in model_files]
 
-    # 创建数据框
     result_df = pd.DataFrame(
         {
             "Date": [g[2] for g in model_eval_dates_times],
@@ -440,9 +443,21 @@ def forecasting():
             # Load the model
             with open(f"model/{model_file}", "rb") as file:
                 model = pickle.load(file)
+            feature_list = model.get_features()
+
+            if not all(feature in data.columns for feature in feature_list):
+                st.markdown(
+                    '<p style="color:red; background-color:pink; padding: 10px; border-radius: 5px;text-align:center">Error: Please make sure the feature columns are the same as the selected model</p>',
+                    unsafe_allow_html=True,
+                )
+
+                st.write("### Feature List for Selected Model")
+                st.write(feature_list)
+
+                return
 
             # Predict the test data
-            X_test = data.drop(columns=["date"])
+            X_test = data[feature_list]
             y_pred = model.predict(X_test).round(2)
             prediction_df = data.copy()
             prediction_df["prediction"] = y_pred
