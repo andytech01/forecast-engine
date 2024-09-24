@@ -109,6 +109,7 @@ def ml_modeling():
                 "Select Categorical Features",
                 feature_cols,
                 default=category_features,
+                placeholder="None",
             )
 
             numerical_options = [
@@ -119,6 +120,7 @@ def ml_modeling():
                 "Select Numerical Features",
                 numerical_options,
                 default=numerical_features,
+                placeholder="None",
             )
 
             features = category_features + numerical_features
@@ -471,16 +473,16 @@ def history_tasks():
         }
     ).reset_index(drop=True)
 
-    result_df["Execute Time"] = result_df.apply(combine_date_time, axis=1)
+    result_df["Trained Time"] = result_df.apply(combine_date_time, axis=1)
 
-    df = result_df.sort_values(by="Execute Time", ascending=False)[:15].reset_index(
+    df = result_df.sort_values(by="Trained Time", ascending=False)[:15].reset_index(
         drop=True
     )[
         [
             "Data Source",
             "Time Column",
             "Target",
-            "Execute Time",
+            "Trained Time",
             "MAE",
             "MAPE",
             # "Trained Model File",
@@ -492,8 +494,8 @@ def history_tasks():
     df.index = df.index + 1
 
     headers = [
-        # "Version",
-        "Execute Time",
+        "Version",
+        "Trained Time",
         "Data Source",
         "Time Column",
         "Target",
@@ -512,7 +514,7 @@ def history_tasks():
     with col1:
         selected_task = st.selectbox(
             "",
-            df["Execute Time"].astype(str) + "(" + df["Data Source"] + ")",
+            df["Trained Time"].astype(str) + "(" + df["Version"] + ")",
             index=None,
             placeholder="Select Task",
             label_visibility="collapsed",
@@ -697,16 +699,16 @@ def forecasting():
             }
         ).reset_index(drop=True)
 
-        model_df["Execute Time"] = model_df.apply(combine_date_time, axis=1)
+        model_df["Trained Time"] = model_df.apply(combine_date_time, axis=1)
 
-        df = model_df.sort_values(by="Execute Time", ascending=False)[:15].reset_index(
+        df = model_df.sort_values(by="Trained Time", ascending=False)[:15].reset_index(
             drop=True
         )
 
         df["Version"] = "V " + (df.shape[0] - df.index).astype(str) + ".0"
         df.index = df.index + 1
 
-        options = (df["Execute Time"].astype(str) + " - " + df["Version"]).tolist()
+        options = (df["Trained Time"].astype(str) + " - " + df["Version"]).tolist()
 
         history_model = st.sidebar.selectbox("Select Trained Model", options)
 
