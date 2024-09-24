@@ -81,7 +81,7 @@ with st.sidebar:
                 "margin": "0px",
                 "--hover-color": "#ededed",
             },
-            "nav-link-selected": {"background-color": "rgb(255, 75, 75)"},
+            "nav-link-selected": {"background-color": "#4f8bf9"},
         },
     )
 st.sidebar.markdown("---")
