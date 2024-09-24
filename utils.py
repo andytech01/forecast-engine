@@ -1,3 +1,4 @@
+from turtle import hideturtle
 import pandas as pd
 import base64
 import plotly.graph_objects as go
@@ -20,6 +21,8 @@ def create_download_link(filename, folder):
 
 
 def plotly_table(data, width=500, use_container_width=False):
+    n_row = data.shape[0]
+    height = 500 if n_row > 10 else 40 * (n_row + 1)
     ### Create a Plotly table
     fig = go.Figure(
         data=[
@@ -46,6 +49,7 @@ def plotly_table(data, width=500, use_container_width=False):
     # Adjusting the layout
     fig.update_layout(
         width=width,  # Adjust width
+        height=height,  # Adjust height
         margin=dict(t=10, b=10, l=10, r=10),  # Adjust margins
     )
     fig.update_layout(template="plotly_white")

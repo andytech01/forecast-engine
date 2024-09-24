@@ -26,3 +26,20 @@ class XGBoostRegressor(BaseModel):
 
     def get_features(self) -> List[str]:
         return self._model.get_booster().feature_names
+
+    def get_feature_importance(self) -> pd.DataFrame:
+        importance_dict = self._model.get_booster().get_score(importance_type="weight")
+        total_importance = sum(importance_dict.values())
+        importance_rates = {
+            feature: round(importance / total_importance, 4)
+            for feature, importance in importance_dict.items()
+        }
+        sorted_importance_rates = dict(
+            sorted(importance_rates.items(), key=lambda item: item[1], reverse=True)
+        )
+
+        feature_importance_df = pd.DataFrame(
+            sorted_importance_rates.items(), columns=["Feature", "Importance Rate"]
+        )
+
+        return feature_importance_df

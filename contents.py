@@ -187,29 +187,30 @@ def ml_modeling():
             )
 
             # Heatmap of feature-target relationships in the main area
-            st.write("### Heatmap of Variable Relationships")
-            correlation_matrix = data[[target] + features].corr()
-            coolwarm_scale = [[0, "blue"], [0.5, "white"], [1, "red"]]
-            fig2 = go.Figure(
-                data=go.Heatmap(
-                    z=correlation_matrix,
-                    x=correlation_matrix.columns,
-                    y=correlation_matrix.columns,
-                    colorscale=coolwarm_scale,
+            if numerical_features:
+                st.write("### Heatmap of Variable Relationships")
+                correlation_matrix = data[[target] + numerical_features].corr()
+                coolwarm_scale = [[0, "blue"], [0.5, "white"], [1, "red"]]
+                fig2 = go.Figure(
+                    data=go.Heatmap(
+                        z=correlation_matrix,
+                        x=correlation_matrix.columns,
+                        y=correlation_matrix.columns,
+                        colorscale=coolwarm_scale,
+                    )
                 )
-            )
-            fig2.update_layout(
-                width=900,
-                height=900,
-                autosize=False,
-                margin=dict(t=50, b=50, l=50, r=50),
-            )
-            fig2.update_layout(template="plotly_white", showlegend=False)
-            st.plotly_chart(
-                fig2,
-                use_container_width=True,
-                config={"displayModeBar": False, "displaylogo": False},
-            )
+                fig2.update_layout(
+                    width=900,
+                    height=900,
+                    autosize=False,
+                    margin=dict(t=50, b=50, l=50, r=50),
+                )
+                fig2.update_layout(template="plotly_white", showlegend=False)
+                st.plotly_chart(
+                    fig2,
+                    use_container_width=True,
+                    config={"displayModeBar": False, "displaylogo": False},
+                )
 
         if (
             target
@@ -334,20 +335,8 @@ def ml_modeling():
 
             test_df["prediction"] = np.round((y_pred + y_test) / 2, 2)
 
-            # # Calculate feature importance
-            # importance_dict = model.get_booster().get_score(importance_type="weight")
-            # total_importance = sum(importance_dict.values())
-            # importance_rates = {
-            #     feature: round(importance / total_importance, 4)
-            #     for feature, importance in importance_dict.items()
-            # }
-            # sorted_importance_rates = dict(
-            #     sorted(importance_rates.items(), key=lambda item: item[1], reverse=True)
-            # )
-
-            # feature_importance_df = pd.DataFrame(
-            #     sorted_importance_rates.items(), columns=["Feature", "Importance Rate"]
-            # )
+            # Calculate feature importance
+            feature_importance_df = model.get_feature_importance()
 
             train_done = True
 
@@ -407,8 +396,8 @@ def ml_modeling():
             config={"displayModeBar": False, "displaylogo": False},
         )
 
-        # st.write("### Feature Importance")
-        # plotly_table(feature_importance_df, width=1000)
+        st.write("### Feature Importance")
+        plotly_table(feature_importance_df, width=600)
 
         # Add timestamp to the filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
