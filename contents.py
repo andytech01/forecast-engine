@@ -400,16 +400,16 @@ def ml_modeling():
         # Add timestamp to the filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         # Save the model and download it
-        pkl_file = f"model/model_{mae}_{mape}_{timestamp}.pkl"
-        with open(pkl_file, "wb") as file:
+        pkl_file = f"model_{mae}_{mape}_{timestamp}.pkl"
+        with open(f"database/model/{pkl_file}", "wb") as file:
             pickle.dump(model, file)
-        with open(pkl_file, "rb") as file:
+        with open(f"database/model/{pkl_file}", "rb") as file:
             b64_model = base64.b64encode(file.read()).decode()
 
         # Save the test dataset with predictions and download it
-        prediction_file = f"result/validation_{mae}_{mape}_{timestamp}.csv"
-        test_df.to_csv(prediction_file, index=False)
-        with open(prediction_file, "r") as file:
+        prediction_file = f"validation_{mae}_{mape}_{timestamp}.csv"
+        test_df.to_csv(f"database/result/{prediction_file}", index=False)
+        with open(f"database/result/{prediction_file}", "r") as file:
             csv_exp = file.read()
             b64 = base64.b64encode(csv_exp.encode()).decode()
 
@@ -464,18 +464,26 @@ def history_tasks():
 
 
 def forecasting():
+    if "forecast_uploaded_file" not in st.session_state:
+        st.session_state.forecast_uploaded_file = None
+
     # Upload the dataset in the sidebar
     uploaded_file = st.sidebar.file_uploader(
         "Upload your dataset for prediction (CSV or Excel)", type=["csv", "xlsx"]
     )
 
-    if not uploaded_file:
+    if uploaded_file is not None:
+        st.session_state.forecast_uploaded_file = uploaded_file
+
+    if not st.session_state.forecast_uploaded_file:
         st.markdown(
             '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">Please upload your dataset for Prediction</p>',
             unsafe_allow_html=True,
         )
 
     else:
+        st.session_state.forecast_uploaded_file.seek(0)
+        uploaded_file = st.session_state.forecast_uploaded_file
         if uploaded_file.name.endswith(".csv"):
             data = pd.read_csv(uploaded_file)
         else:
@@ -485,9 +493,14 @@ def forecasting():
         original_df = data.copy()
         original_df["year"] = original_df["year"].astype(str)
         st.write("### Data Overview")
+        st.markdown(
+            f'<p style="color:red; font-size:small">Uploaded file: {uploaded_file.name}</p>',
+            unsafe_allow_html=True,
+        )
         st.write(original_df)
 
-        model_files = os.listdir("model/")
+        model_path = "database/model/"
+        model_files = os.listdir(model_path)
 
         # 解析文件名以获取日期和时间
         model_eval_dates_times = [parse_filename(f) for f in model_files]
@@ -518,7 +531,7 @@ def forecasting():
             version = history_model.split(" - ")[1]
             model_file = df[df["Version"] == version]["Trained Model File"].values[0]
             # Load the model
-            with open(f"model/{model_file}", "rb") as file:
+            with open(f"{model_path}/{model_file}", "rb") as file:
                 model = pickle.load(file)
             feature_list = model.get_features()
 

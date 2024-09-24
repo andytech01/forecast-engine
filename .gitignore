@@ -3,6 +3,7 @@
 images/
 predict/
 samples/
+database/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
