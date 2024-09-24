@@ -309,7 +309,7 @@ def ml_modeling():
 
             model.train(X_train, y_train)
 
-            time.sleep(1.2)
+            time.sleep(12)
             running_message.empty()
 
             success_message = st.markdown(
@@ -404,6 +404,7 @@ def ml_modeling():
 
         # Save the field assignment as json
         field_assignment = {
+            "data_source": uploaded_file.name,
             "ts_col": ts_col,
             "target": target,
             "category_features": category_features,
@@ -442,9 +443,12 @@ def history_tasks():
 
     model_path = "database/model/"
     result_path = "database/result/"
+    config_path = "database/config/"
 
     model_files = os.listdir(model_path)
     result_files = os.listdir(result_path)
+    config_files = os.listdir(config_path)
+    config_jsons = [json.load(open(f"{config_path}/{f}")) for f in config_files]
 
     # Get the model date and time
     model_eval_dates_times = [parse_filename(f) for f in model_files]
@@ -461,6 +465,9 @@ def history_tasks():
             "Validation Result": [
                 create_download_link(f, result_path) for f in result_files
             ],
+            "Data Source": [f["data_source"] for f in config_jsons],
+            "Time Column": [f["ts_col"] for f in config_jsons],
+            "Target": [f["target"] for f in config_jsons],
         }
     ).reset_index(drop=True)
 
@@ -468,19 +475,44 @@ def history_tasks():
 
     df = result_df.sort_values(by="Execute Time", ascending=False)[:15].reset_index(
         drop=True
-    )[["Execute Time", "MAE", "MAPE", "Trained Model File", "Validation Result"]]
+    )[
+        [
+            "Data Source",
+            "Time Column",
+            "Target",
+            "Execute Time",
+            "MAE",
+            "MAPE",
+            # "Trained Model File",
+            # "Validation Result",
+        ]
+    ]
 
     df["Version"] = "V " + (df.shape[0] - df.index).astype(str) + ".0"
     df.index = df.index + 1
 
-    table_html = df.to_html(escape=False, index=False, justify="center")
+    headers = [
+        # "Version",
+        "Execute Time",
+        "Data Source",
+        "Time Column",
+        "Target",
+        "MAE",
+        "MAPE",
+        # "Trained Model File",
+        # "Validation Result",
+    ]
+
+    table_html = df[headers].to_html(
+        escape=False, index=False, justify="center", header=True, sparsify=True
+    )
 
     detail_button = None
     col1, col2 = st.columns([4, 2])
     with col1:
         selected_task = st.selectbox(
             "",
-            df["Execute Time"].astype(str) + "(" + df["Version"] + ")",
+            df["Execute Time"].astype(str) + "(" + df["Data Source"] + ")",
             index=None,
             placeholder="Select Task",
             label_visibility="collapsed",
