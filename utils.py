@@ -1,9 +1,10 @@
-from turtle import hideturtle
 import pandas as pd
 import base64
 import plotly.graph_objects as go
 import os
 import streamlit as st
+import plotly.express as px
+
 import re
 
 
@@ -55,6 +56,29 @@ def plotly_table(data, width=500, use_container_width=False):
     fig.update_layout(template="plotly_white")
 
     # Hide the default Plotly modebar
+    config = {"displayModeBar": False, "displaylogo": False}
+    st.plotly_chart(fig, use_container_width=use_container_width, config=config)
+
+
+def plotly_bar(data, use_container_width=False):
+    df = data.sort_values(by="Importance Rate", ascending=True)
+    fig = px.bar(
+        df,
+        x="Importance Rate",
+        y="Feature",
+        orientation="h",
+        text_auto=True,
+    )
+
+    fig.update_layout(
+        height=600,
+        width=800,
+        margin=dict(t=00, b=50, l=25, r=25),
+        xaxis_title="Importance Rate",
+        yaxis_title="Feature",
+        template="plotly_white",
+    )
+
     config = {"displayModeBar": False, "displaylogo": False}
     st.plotly_chart(fig, use_container_width=use_container_width, config=config)
 

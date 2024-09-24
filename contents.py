@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
@@ -308,7 +309,7 @@ def ml_modeling():
 
             model.train(X_train, y_train)
 
-            time.sleep(12)
+            time.sleep(1.2)
             running_message.empty()
 
             success_message = st.markdown(
@@ -344,24 +345,22 @@ def ml_modeling():
         # Plotting the real vs predicted values in the main area
         fig = go.Figure()
 
-        # Add the Actual Price data
         fig.add_trace(
             go.Scatter(
                 x=test_df["date"],
                 y=test_df["price"],
                 mode="lines+markers",
-                name="Actual Price",
+                name=f"Actual {target}",
                 line=dict(color="blue"),  # set line color to blue
             )
         )
 
-        # Add the Predicted Price data
         fig.add_trace(
             go.Scatter(
                 x=test_df["date"],
                 y=test_df["prediction"],
                 mode="lines+markers",
-                name="Predicted Price",
+                name=f"Predicted {target}",
                 line=dict(color="red"),  # set line color to red
             )
         )
@@ -374,8 +373,8 @@ def ml_modeling():
             #     'xanchor': 'center',
             #     'y': 0.95,
             # },
-            xaxis_title="Date",
-            yaxis_title="Price",
+            xaxis_title=ts_col,
+            yaxis_title=target,
             xaxis=dict(tickangle=-45),  # rotate date labels to 45 degrees
             hovermode="x unified",  # unified hovermode
             autosize=False,
@@ -397,10 +396,24 @@ def ml_modeling():
         )
 
         st.write("### Feature Importance")
-        plotly_table(feature_importance_df, width=600)
+        # plotly_table(feature_importance_df, width=600)
+        plotly_bar(feature_importance_df)
 
         # Add timestamp to the filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+
+        # Save the field assignment as json
+        field_assignment = {
+            "ts_col": ts_col,
+            "target": target,
+            "category_features": category_features,
+            "numerical_features": numerical_features,
+        }
+
+        json_file = f"database/config/field_assignment_{timestamp}.json"
+        with open(json_file, "w") as file:
+            json.dump(field_assignment, file)
+
         # Save the model and download it
         pkl_file = f"model_{mae}_{mape}_{timestamp}.pkl"
         with open(f"database/model/{pkl_file}", "wb") as file:
@@ -462,7 +475,143 @@ def history_tasks():
 
     table_html = df.to_html(escape=False, index=False, justify="center")
 
-    st.write(table_html, unsafe_allow_html=True)
+    detail_button = None
+    col1, col2 = st.columns([4, 2])
+    with col1:
+        selected_task = st.selectbox(
+            "",
+            df["Execute Time"].astype(str) + "(" + df["Version"] + ")",
+            index=None,
+            placeholder="Select Task",
+            label_visibility="collapsed",
+        )
+    with col2:
+        if selected_task:
+            detail_button = st.button("View Details")
+        else:
+            st.markdown(
+                '<button class="gray-button" disabled>View Details</button>',
+                unsafe_allow_html=True,
+            )
+    if detail_button:
+        exe_time = selected_task.split("(")[0]
+        date_string = exe_time.split(" ")[0].replace("-", "")
+        time_string = (
+            exe_time.split(" ")[1].split(":")[0] + exe_time.split(" ")[1].split(":")[1]
+        )
+        for file in model_files:
+            if date_string in file and time_string in file:
+                model_file = file
+                break
+
+        for file in result_files:
+            if date_string in file and time_string in file:
+                result_file = file
+                break
+
+        model_file_path = f"{model_path}/{model_file}"
+        result_file_path = f"{result_path}/{result_file}"
+        config_file_path = (
+            f"database/config/field_assignment_{date_string}_{time_string}.json"
+        )
+
+        with open(config_file_path, "r") as file:
+            config = json.load(file)
+
+        ts_col = config["ts_col"]
+        target = config["target"]
+
+        mae = model_file.split("_")[1]
+        mape = model_file.split("_")[2]
+
+        # load the model and validation result
+        with open(model_file_path, "rb") as file:
+            model = pickle.load(file)
+
+        feature_importance_df = model.get_feature_importance()
+        test_df = pd.read_csv(result_file_path)
+
+        # Display evaluation metrics
+        st.write("### Model Evaluation")
+        st.write(f"##### MAE: {mae} and MAPE: {mape}")
+
+        # Plotting the real vs predicted values in the main area
+        fig = go.Figure()
+
+        # Add the Actual Price data
+        fig.add_trace(
+            go.Scatter(
+                x=test_df[ts_col],
+                y=test_df[target],
+                mode="lines+markers",
+                name=f"Actual {target}",
+                line=dict(color="blue"),  # set line color to blue
+            )
+        )
+
+        # Add the Predicted Price data
+        fig.add_trace(
+            go.Scatter(
+                x=test_df[ts_col],
+                y=test_df["prediction"],
+                mode="lines+markers",
+                name=f"Predicted {target}",
+                line=dict(color="red"),  # set line color to red
+            )
+        )
+
+        # Update the layout with various customizations
+        fig.update_layout(
+            # title={
+            #     'text': 'Actual vs Predicted Price',
+            #     'x': 0.5,
+            #     'xanchor': 'center',
+            #     'y': 0.95,
+            # },
+            xaxis_title=ts_col,
+            yaxis_title=target,
+            xaxis=dict(tickangle=-45),  # rotate date labels to 45 degrees
+            hovermode="x unified",  # unified hovermode
+            autosize=False,
+            width=1200,  # adjust width
+            height=400,  # adjust height
+            margin=dict(l=20, r=20, b=20, t=40),
+            legend=dict(
+                x=1,  # x position of legend (1 is the far right)
+                y=1,  # y position of legend (1 is the top)
+                xanchor="auto",  # 'auto' means the x position refers to the right side of the legend
+                yanchor="auto",  # 'auto' means the y position refers to the top side of the legend
+            ),
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={"displayModeBar": False, "displaylogo": False},
+        )
+
+        st.write("### Feature Importance")
+        # plotly_table(feature_importance_df, width=600)
+        plotly_bar(feature_importance_df)
+
+        with open(model_file_path, "rb") as file:
+            b64_model = base64.b64encode(file.read()).decode()
+
+        with open(result_file_path, "r") as file:
+            csv_exp = file.read()
+            b64 = base64.b64encode(csv_exp.encode()).decode()
+
+        # Combined HTML code for both buttons placed side by side and centered
+        buttons_html = f"""
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <a href="data:application/octet-stream;base64,{b64_model}" download="{model_file}" style="background-color: #4F8BF9; color: white; padding: 0.5em 1em; border-radius: 0.25em; text-decoration: none;">Download Trained Model (.pkl)</a>
+                <a href="data:file/csv;base64,{b64}" download="{result_file}" style="background-color: #4F8BF9; color: white; padding: 0.5em 1em; border-radius: 0.25em; text-decoration: none;">Download Validation File (.csv)</a>
+            </div>
+        """
+        st.markdown(buttons_html, unsafe_allow_html=True)
+
+    else:
+        st.write(table_html, unsafe_allow_html=True)
 
 
 def forecasting():
