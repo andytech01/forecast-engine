@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
 import time
+from sqlalchemy import desc
 import streamlit as st
 
 import plotly.graph_objects as go
@@ -50,6 +51,13 @@ def ml_modeling():
     )
 
     if uploaded_file is not None:
+        if uploaded_file != st.session_state.uploaded_file:
+            st.session_state.ts_col = None
+            st.session_state.target = None
+            st.session_state.category_features = []
+            st.session_state.numerical_features = []
+            st.session_state.model_config = False
+
         st.session_state.uploaded_file = uploaded_file
 
     if not st.session_state.uploaded_file:
@@ -124,7 +132,7 @@ def ml_modeling():
                 placeholder="None",
             )
 
-            features = category_features + numerical_features
+            features = numerical_features + category_features
 
         if ts_col or target or features:
             save_button = None
@@ -164,7 +172,7 @@ def ml_modeling():
 
         if target and features and st.sidebar.button("Analysis Data"):
             st.session_state.model_config = False
-            original_df = data[features].copy()
+            original_df = data[[ts_col, target] + features].copy()
             for col in category_features:
                 original_df[col] = original_df[col].astype(str)
             st.write("### Data Overview")
@@ -172,7 +180,8 @@ def ml_modeling():
 
             # Display basic statistics in the main area
             st.write("### Data Statistics")
-            st.write(original_df.describe(include="all"))
+            describe_df = original_df[[target] + features].describe(include="all")
+            st.write(describe_df)
 
             # Histogram of the target variable in the main area
             st.write("### Histogram of Target Variable")
@@ -374,8 +383,8 @@ def ml_modeling():
 
         fig.add_trace(
             go.Scatter(
-                x=test_df["date"],
-                y=test_df["price"],
+                x=test_df[ts_col],
+                y=test_df[target],
                 mode="lines+markers",
                 name=f"Actual {target}",
                 line=dict(color="blue"),
@@ -384,7 +393,7 @@ def ml_modeling():
 
         fig.add_trace(
             go.Scatter(
-                x=test_df["date"],
+                x=test_df[ts_col],
                 y=test_df["baseline"],
                 mode="lines+markers",
                 name="Baseline Prediction",
@@ -394,7 +403,7 @@ def ml_modeling():
 
         fig.add_trace(
             go.Scatter(
-                x=test_df["date"],
+                x=test_df[ts_col],
                 y=test_df["prediction"],
                 mode="lines+markers",
                 name=f"{selected_model} Prediction",
@@ -440,28 +449,31 @@ def ml_modeling():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Save the field assignment as json
-        field_assignment = {
+        task_info = {
             "data_source": uploaded_file.name,
             "ts_col": ts_col,
             "target": target,
             "category_features": category_features,
             "numerical_features": numerical_features,
             "selected_model": selected_model,
+            "mae": mae,
+            "mape": mape,
+            "datetime": timestamp,
         }
 
-        json_file = f"database/config/field_assignment_{timestamp}.json"
+        json_file = f"database/tasks/task_{timestamp}.json"
         with open(json_file, "w") as file:
-            json.dump(field_assignment, file)
+            json.dump(task_info, file)
 
         # Save the model and download it
-        pkl_file = f"model_{mae}_{mape}_{timestamp}.pkl"
+        pkl_file = f"model_{timestamp}.pkl"
         with open(f"database/model/{pkl_file}", "wb") as file:
             pickle.dump(model, file)
         with open(f"database/model/{pkl_file}", "rb") as file:
             b64_model = base64.b64encode(file.read()).decode()
 
         # Save the test dataset with predictions and download it
-        prediction_file = f"validation_{mae}_{mape}_{timestamp}.csv"
+        prediction_file = f"validation_{timestamp}.csv"
         test_df.to_csv(f"database/result/{prediction_file}", index=False)
         with open(f"database/result/{prediction_file}", "r") as file:
             csv_exp = file.read()
@@ -479,36 +491,61 @@ def ml_modeling():
 
 def history_tasks():
 
+    history_tasks_path = "database/tasks/"
     model_path = "database/model/"
     result_path = "database/result/"
-    config_path = "database/config/"
 
     model_files = os.listdir(model_path)
     result_files = os.listdir(result_path)
-    config_files = os.listdir(config_path)
-    config_jsons = [json.load(open(f"{config_path}/{f}")) for f in config_files]
+    history_tasks_files = os.listdir(history_tasks_path)
+    history_tasks_jsons = [
+        json.load(open(f"{history_tasks_path}/{f}")) for f in history_tasks_files
+    ]
 
-    # Get the model date and time
-    model_eval_dates_times = [parse_filename(f) for f in model_files]
+    if not history_tasks_files:
+        st.markdown(
+            '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">No history tasks available</p>',
+            unsafe_allow_html=True,
+        )
+        return
 
-    result_df = pd.DataFrame(
-        {
-            "Date": [g[2] for g in model_eval_dates_times],
-            "Time": [g[3] for g in model_eval_dates_times],
-            "Mean Average Error": [g[0] for g in model_eval_dates_times],
-            "Accuracy": [f"{100-float(g[1])*100}%" for g in model_eval_dates_times],
-            "Trained Model File": [
-                create_download_link(f, model_path) for f in model_files
-            ],
-            "Validation Result": [
-                create_download_link(f, result_path) for f in result_files
-            ],
-            "Data Source": [f["data_source"] for f in config_jsons],
-            "Time Column": [f["ts_col"] for f in config_jsons],
-            "Target": [f["target"] for f in config_jsons],
-            "Model": [f["selected_model"] for f in config_jsons],
-        }
-    ).reset_index(drop=True)
+    result_df = pd.DataFrame()
+    for task in history_tasks_jsons:
+        task_df = pd.DataFrame(
+            {
+                "Date": [task["datetime"].split("_")[0]],
+                "Time": [task["datetime"].split("_")[1]],
+                "Mean Average Error": [task["mae"]],
+                "Accuracy": [f"{100-float(task['mape'])*100}%"],
+                "Data Source": [task["data_source"]],
+                "Time Column": [task["ts_col"]],
+                "Target": [task["target"]],
+                "Model": [task["selected_model"]],
+            }
+        )
+
+        result_df = pd.concat([result_df, task_df], ignore_index=True)
+
+    ## Get the model date and time
+    # model_eval_dates_times = [parse_filename(f) for f in model_files]
+    # result_df = pd.DataFrame(
+    #     {
+    #         "Date": [g[2] for g in model_eval_dates_times],
+    #         "Time": [g[3] for g in model_eval_dates_times],
+    #         "Mean Average Error": [g[0] for g in model_eval_dates_times],
+    #         "Accuracy": [f"{100-float(g[1])*100}%" for g in model_eval_dates_times],
+    #         "Trained Model File": [
+    #             create_download_link(f, model_path) for f in model_files
+    #         ],
+    #         "Validation Result": [
+    #             create_download_link(f, result_path) for f in result_files
+    #         ],
+    #         "Data Source": [f["data_source"] for f in history_tasks_jsons],
+    #         "Time Column": [f["ts_col"] for f in history_tasks_jsons],
+    #         "Target": [f["target"] for f in history_tasks_jsons],
+    #         "Model": [f["selected_model"] for f in history_tasks_jsons],
+    #     }
+    # ).reset_index(drop=True)
 
     result_df["Trained Time"] = result_df.apply(combine_date_time, axis=1)
 
@@ -586,19 +623,18 @@ def history_tasks():
 
         model_file_path = f"{model_path}/{model_file}"
         result_file_path = f"{result_path}/{result_file}"
-        config_file_path = (
-            f"database/config/field_assignment_{date_string}_{time_string}.json"
+        history_tasks_file_path = (
+            f"{history_tasks_path}/task_{date_string}_{time_string}.json"
         )
 
-        with open(config_file_path, "r") as file:
-            config = json.load(file)
+        with open(history_tasks_file_path, "r") as file:
+            task_info = json.load(file)
 
-        ts_col = config["ts_col"]
-        target = config["target"]
-        selected_model = config["selected_model"]
-
-        mae = model_file.split("_")[1]
-        mape = model_file.split("_")[2]
+        ts_col = task_info["ts_col"]
+        target = task_info["target"]
+        selected_model = task_info["selected_model"]
+        mae = task_info["mae"]
+        mape = task_info["mape"]
 
         # load the model and validation result
         with open(model_file_path, "rb") as file:
@@ -718,6 +754,21 @@ def history_tasks():
 
 
 def forecasting():
+
+    history_tasks_path = "database/tasks/"
+    model_path = "database/model/"
+    history_tasks_files = os.listdir(history_tasks_path)
+    history_tasks_jsons = [
+        json.load(open(f"{history_tasks_path}/{f}")) for f in history_tasks_files
+    ]
+
+    if not history_tasks_files:
+        st.markdown(
+            '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">No trained model is available, please do the ML Modeling first</p>',
+            unsafe_allow_html=True,
+        )
+        return
+
     if "forecast_uploaded_file" not in st.session_state:
         st.session_state.forecast_uploaded_file = None
 
@@ -727,6 +778,8 @@ def forecasting():
     )
 
     if uploaded_file is not None:
+        if uploaded_file != st.session_state.forecast_uploaded_file:
+            st.session_state.forecast_uploaded_file = None
         st.session_state.forecast_uploaded_file = uploaded_file
 
     if not st.session_state.forecast_uploaded_file:
@@ -745,7 +798,9 @@ def forecasting():
 
         # Display the dataset in the main area
         original_df = data.copy()
-        original_df["year"] = original_df["year"].astype(str)
+        if "year" in original_df.columns:
+            original_df["year"] = original_df["year"].astype(str)
+
         st.write("### Data Overview")
         st.markdown(
             f'<p style="color:red; font-size:small">Uploaded file: {uploaded_file.name}</p>',
@@ -753,20 +808,34 @@ def forecasting():
         )
         st.write(original_df)
 
-        model_path = "database/model/"
-        model_files = os.listdir(model_path)
+        model_df = pd.DataFrame()
+        for task in history_tasks_jsons:
+            task_df = pd.DataFrame(
+                {
+                    "Date": [task["datetime"].split("_")[0]],
+                    "Time": [task["datetime"].split("_")[1]],
+                    "ts_col": [task["ts_col"]],
+                    "target": [task["target"]],
+                    "Trained Model File": [f"model_{task['datetime']}.pkl"],
+                }
+            )
 
-        # 解析文件名以获取日期和时间
-        model_eval_dates_times = [parse_filename(f) for f in model_files]
+            model_df = pd.concat([model_df, task_df], ignore_index=True)
 
-        # 创建数据框
-        model_df = pd.DataFrame(
-            {
-                "Date": [g[2] for g in model_eval_dates_times],
-                "Time": [g[3] for g in model_eval_dates_times],
-                "Trained Model File": model_files,
-            }
-        ).reset_index(drop=True)
+        # model_path = "database/model/"
+        # model_files = os.listdir(model_path)
+
+        # # 解析文件名以获取日期和时间
+        # model_eval_dates_times = [parse_filename(f) for f in model_files]
+
+        # # 创建数据框
+        # model_df = pd.DataFrame(
+        #     {
+        #         "Date": [g[2] for g in model_eval_dates_times],
+        #         "Time": [g[3] for g in model_eval_dates_times],
+        #         "Trained Model File": model_files,
+        #     }
+        # ).reset_index(drop=True)
 
         model_df["Trained Time"] = model_df.apply(combine_date_time, axis=1)
 
@@ -784,19 +853,21 @@ def forecasting():
         if history_model and st.sidebar.button("Predict"):
             version = history_model.split(" - ")[1]
             model_file = df[df["Version"] == version]["Trained Model File"].values[0]
+            ts_col = df[df["Version"] == version]["ts_col"].values[0]
+
             # Load the model
             with open(f"{model_path}/{model_file}", "rb") as file:
                 model = pickle.load(file)
             feature_list = model.get_features()
 
-            if not all(feature in data.columns for feature in feature_list):
+            if not all(feature in data.columns for feature in [ts_col] + feature_list):
                 st.markdown(
                     '<p style="color:red; background-color:pink; padding: 10px; border-radius: 5px;text-align:center">Error: Missing required features. Ensure your data contains the following features expected by the model</p>',
                     unsafe_allow_html=True,
                 )
 
                 st.write("**Feature List for Selected Model**")
-                st.write(feature_list)
+                st.write([ts_col] + feature_list)
 
                 return
 
@@ -812,7 +883,7 @@ def forecasting():
             # Add the Predicted Price data
             fig.add_trace(
                 go.Scatter(
-                    x=prediction_df["date"],
+                    x=prediction_df[ts_col],
                     y=prediction_df["prediction"],
                     mode="lines+markers",
                     name="Predicted Price",
