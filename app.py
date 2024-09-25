@@ -1,5 +1,7 @@
 import warnings
 
+from documents import *
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 import streamlit as st
@@ -38,13 +40,8 @@ with open("css/content.css", "r") as f:
 st.markdown(
     """
     <style>
-        .stRadio > label {
-            display: flex;
-            flex-direction: row;
-        }
-        .stRadio > div {
-            display: flex;
-            flex-direction: row;
+        .stRadio {
+            padding-left: 40px;
         }
     </style>
     """,
@@ -69,9 +66,9 @@ st.sidebar.markdown(
 with st.sidebar:
     choose = option_menu(
         menu_title="",
-        options=["ML Modeling", "Forecasting", "History Tasks"],
+        options=["ML Modeling", "Forecasting", "History Tasks", "Docuemntation"],
         # icons=['lightbulb', 'graph-up', 'card-list'],
-        icons=[" ", " ", " "],
+        icons=[" ", " ", " ", " "],
         menu_icon="app-indicator",
         default_index=0,
         styles={
@@ -113,3 +110,43 @@ elif choose == "History Tasks":
     )
     st.markdown("---")
     history_tasks()
+elif choose == "Docuemntation":
+    selected_page = st.sidebar.radio(
+        "Select a page",
+        ["Overview", "Quick Start", "Requirements", "Models", "API Reference"],
+    )
+    if selected_page == "Overview":
+        st.markdown(
+            '<div class="content-title">📄 Overview</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        system_overview()
+    if selected_page == "Quick Start":
+        st.markdown(
+            '<div class="content-title">📘 Quick Start for Forecasting Engine</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        quick_start()
+
+    if selected_page == "Requirements":
+        st.markdown(
+            '<div class="content-title">📋 Requirements</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+
+    if selected_page == "Models":
+        st.markdown(
+            '<div class="content-title">🤖 Models</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+
+    if selected_page == "API Reference":
+        st.markdown(
+            '<div class="content-title">📖 API Reference</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
