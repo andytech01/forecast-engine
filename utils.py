@@ -23,7 +23,7 @@ def create_download_link(filename, folder):
 
 def plotly_table(data, width=500, use_container_width=False):
     n_row = data.shape[0]
-    height = 500 if n_row > 10 else 40 * (n_row + 1)
+    height = 500 if n_row > 10 else 50 * (n_row + 1)
     ### Create a Plotly table
     fig = go.Figure(
         data=[

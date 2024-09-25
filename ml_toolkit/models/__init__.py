@@ -22,6 +22,7 @@ Failing to adhere to the convention of inheriting from `BaseModel` might result 
 from .base_model import BaseModel
 from .xgboost_model import XGBoostRegressor
 from .bagging_model import BaggingRegressor
+from .moving_average_model import MARegressor
 
 # # Dynamically import all the models in the current package
 # import pkgutil

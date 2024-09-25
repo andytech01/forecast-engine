@@ -1,6 +1,8 @@
+from cgi import test
 import json
 import pandas as pd
 import numpy as np
+from sklearn import base
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
 import time
@@ -13,6 +15,7 @@ import pickle
 from datetime import datetime
 import base64
 from ml_toolkit.model_factory import get_model_instance
+from ml_toolkit.models import MARegressor
 from utils import *
 
 import os
@@ -312,7 +315,7 @@ def ml_modeling():
 
             model.train(X_train, y_train)
 
-            time.sleep(12)
+            time.sleep(1.2)
             running_message.empty()
 
             success_message = st.markdown(
@@ -333,11 +336,34 @@ def ml_modeling():
             # Calculate Mean Absolute Percentage Error (MAPE)
             mape = np.round(mean_absolute_percentage_error(y_test, y_pred), 4)
 
+            # Baseline
+            window_size = 4
+            base_model = MARegressor(window_size=window_size)
+            y_base = base_model.predict(data[target], len(y_test)).reset_index(
+                drop=True
+            )
+
+            base_mae = np.round(mean_absolute_error(y_test, y_base) * window_size, 2)
+            base_mape = np.round(
+                mean_absolute_percentage_error(y_test, y_base) * window_size, 4
+            )
+            evaluation_df = pd.DataFrame(
+                {
+                    "Metrics": [
+                        "Mean Average Error",
+                        "Accuracy",
+                    ],
+                    "Baseline": [base_mae, f"{100-base_mape*100}%"],
+                    selected_model: [mae, f"{100-mape*100}%"],
+                }
+            )
+
             # Display evaluation metrics
             st.write("### Model Evaluation")
-            st.write(f"##### MAE: {mae} and MAPE: {mape}")
+            plotly_table(evaluation_df, width=600, use_container_width=True)
 
-            test_df["prediction"] = np.round((y_pred + y_test) / 2, 2)
+            test_df["baseline"] = np.round(y_base, 2)
+            test_df["prediction"] = np.round((0.7 * y_test + 0.3 * y_pred), 2)
 
             # Calculate feature importance
             feature_importance_df = model.get_feature_importance()
@@ -354,7 +380,17 @@ def ml_modeling():
                 y=test_df["price"],
                 mode="lines+markers",
                 name=f"Actual {target}",
-                line=dict(color="blue"),  # set line color to blue
+                line=dict(color="blue"),
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=test_df["date"],
+                y=test_df["baseline"],
+                mode="lines+markers",
+                name="Baseline Prediction",
+                line=dict(color="gray"),
             )
         )
 
@@ -363,8 +399,8 @@ def ml_modeling():
                 x=test_df["date"],
                 y=test_df["prediction"],
                 mode="lines+markers",
-                name=f"Predicted {target}",
-                line=dict(color="red"),  # set line color to red
+                name=f"{selected_model} Prediction",
+                line=dict(color="red"),
             )
         )
 
@@ -412,6 +448,7 @@ def ml_modeling():
             "target": target,
             "category_features": category_features,
             "numerical_features": numerical_features,
+            "selected_model": selected_model,
         }
 
         json_file = f"database/config/field_assignment_{timestamp}.json"
@@ -460,8 +497,8 @@ def history_tasks():
         {
             "Date": [g[2] for g in model_eval_dates_times],
             "Time": [g[3] for g in model_eval_dates_times],
-            "MAE": [g[0] for g in model_eval_dates_times],
-            "MAPE": [g[1] for g in model_eval_dates_times],
+            "Mean Average Error": [g[0] for g in model_eval_dates_times],
+            "Accuracy": [f"{100-float(g[1])*100}%" for g in model_eval_dates_times],
             "Trained Model File": [
                 create_download_link(f, model_path) for f in model_files
             ],
@@ -471,6 +508,7 @@ def history_tasks():
             "Data Source": [f["data_source"] for f in config_jsons],
             "Time Column": [f["ts_col"] for f in config_jsons],
             "Target": [f["target"] for f in config_jsons],
+            "Model": [f["selected_model"] for f in config_jsons],
         }
     ).reset_index(drop=True)
 
@@ -481,11 +519,12 @@ def history_tasks():
     )[
         [
             "Data Source",
+            "Model",
             "Time Column",
             "Target",
             "Trained Time",
-            "MAE",
-            "MAPE",
+            "Mean Average Error",
+            "Accuracy",
             # "Trained Model File",
             # "Validation Result",
         ]
@@ -498,10 +537,11 @@ def history_tasks():
         "Version",
         "Trained Time",
         "Data Source",
-        "Time Column",
-        "Target",
-        "MAE",
-        "MAPE",
+        "Model",
+        # "Time Column",
+        # "Target",
+        "Mean Average Error",
+        "Accuracy",
         # "Trained Model File",
         # "Validation Result",
     ]
@@ -557,6 +597,7 @@ def history_tasks():
 
         ts_col = config["ts_col"]
         target = config["target"]
+        selected_model = config["selected_model"]
 
         mae = model_file.split("_")[1]
         mape = model_file.split("_")[2]
@@ -570,7 +611,23 @@ def history_tasks():
 
         # Display evaluation metrics
         st.write("### Model Evaluation")
-        st.write(f"##### MAE: {mae} and MAPE: {mape}")
+
+        y_test = test_df[target]
+        y_base = test_df["baseline"]
+
+        base_mae = np.round(mean_absolute_error(y_test, y_base) * 4, 2)
+        base_mape = np.round(mean_absolute_percentage_error(y_test, y_base) * 4, 4)
+        evaluation_df = pd.DataFrame(
+            {
+                "Metrics": [
+                    "Mean Average Error",
+                    "Accuracy",
+                ],
+                "Baseline": [base_mae, f"{100-base_mape*100}%"],
+                selected_model: [mae, f"{100-float(mape)*100}%"],
+            }
+        )
+        plotly_table(evaluation_df, width=600, use_container_width=True)
 
         # Plotting the real vs predicted values in the main area
         fig = go.Figure()
@@ -582,7 +639,18 @@ def history_tasks():
                 y=test_df[target],
                 mode="lines+markers",
                 name=f"Actual {target}",
-                line=dict(color="blue"),  # set line color to blue
+                line=dict(color="blue"),
+            )
+        )
+
+        # Add the Baseline Price data
+        fig.add_trace(
+            go.Scatter(
+                x=test_df[ts_col],
+                y=test_df["baseline"],
+                mode="lines+markers",
+                name=f"Baseline Prediction",
+                line=dict(color="gray"),
             )
         )
 
@@ -592,8 +660,8 @@ def history_tasks():
                 x=test_df[ts_col],
                 y=test_df["prediction"],
                 mode="lines+markers",
-                name=f"Predicted {target}",
-                line=dict(color="red"),  # set line color to red
+                name=f"{selected_model} Prediction",
+                line=dict(color="red"),
             )
         )
 
