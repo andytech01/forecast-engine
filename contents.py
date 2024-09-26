@@ -322,7 +322,7 @@ def ml_modeling():
 
             model.train(X_train, y_train)
 
-            time.sleep(1.2)
+            time.sleep(12)
             running_message.empty()
 
             success_message = st.markdown(
