@@ -43,10 +43,40 @@ st.markdown(
         .stRadio {
             padding-left: 40px;
         }
+        .stCheckbox {
+            padding-left: 5px;
+        }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+st.markdown(
+    """
+    <style>
+    .floating-quickstart {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        width: 300px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        z-index: 100;
+        font-size: 14px;
+        color: #333;
+        max-height: 70vh;  /* Max height relative to viewport height */
+        overflow-y: auto;  /* Enable vertical scroll if content exceeds max-height */
+    }
+    .floating-quickstart h3 {
+        margin-top: 0;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 ### Sidebar content
 with open("images/logo.png", "rb") as img_file:
@@ -62,6 +92,10 @@ st.sidebar.markdown(
     </div>""",
     unsafe_allow_html=True,
 )
+
+# Initialize session state for the toggle button
+if "show_quickstart" not in st.session_state:
+    st.session_state.show_quickstart = False
 
 with st.sidebar:
     choose = option_menu(
@@ -83,37 +117,13 @@ with st.sidebar:
             "nav-link-selected": {"background-color": "#4f8bf9"},
         },
     )
+
 st.sidebar.markdown("---")
 
-if choose == "ML Modeling":
-    st.markdown(
-        """
-        <div class="content-title">💡 Machine Learning Modeling</div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown("---")
-    ml_modeling()
-
-elif choose == "Forecasting":
-    st.markdown(
-        '<div class="content-title">📈 Forecasting</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown("---")
-    forecasting()
-
-elif choose == "History Tasks":
-    st.markdown(
-        '<div class="content-title">📜 History Tasks</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown("---")
-    history_tasks()
-elif choose == "Docuemntation":
+if choose == "Docuemntation":
     selected_page = st.sidebar.radio(
         "Select a page",
-        ["Overview", "Quick Start", "Requirements", "Models", "API Reference"],
+        ["Overview", "Quick Start", "Data Requirements", "Models"],
     )
     if selected_page == "Overview":
         st.markdown(
@@ -130,12 +140,13 @@ elif choose == "Docuemntation":
         st.markdown("---")
         quick_start()
 
-    if selected_page == "Requirements":
+    if selected_page == "Data Requirements":
         st.markdown(
             '<div class="content-title">📋 Requirements</div>',
             unsafe_allow_html=True,
         )
         st.markdown("---")
+        requirements()
 
     if selected_page == "Models":
         st.markdown(
@@ -143,6 +154,7 @@ elif choose == "Docuemntation":
             unsafe_allow_html=True,
         )
         st.markdown("---")
+        model_explanation()
 
     if selected_page == "API Reference":
         st.markdown(
@@ -150,3 +162,39 @@ elif choose == "Docuemntation":
             unsafe_allow_html=True,
         )
         st.markdown("---")
+
+else:
+    # Toggle button for Quick Start visibility
+    toggle_quickstart = st.sidebar.checkbox(
+        "Show Quick Start Guide", value=st.session_state.show_quickstart
+    )
+    # Update session state based on toggle
+    st.session_state.show_quickstart = toggle_quickstart
+
+    if choose == "ML Modeling":
+        st.markdown(
+            """
+            <div class="content-title">💡 Machine Learning Modeling</div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        ml_modeling()
+
+    elif choose == "Forecasting":
+        st.markdown(
+            '<div class="content-title">📈 Forecasting</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        forecasting()
+
+    elif choose == "History Tasks":
+        st.markdown(
+            '<div class="content-title">📜 History Tasks</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        history_tasks()
+    if st.session_state.show_quickstart:
+        quick_start_floating()
