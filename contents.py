@@ -531,7 +531,7 @@ def history_tasks():
                 "Date": [task["datetime"].split("_")[0]],
                 "Time": [task["datetime"].split("_")[1]],
                 "Mean Average Error": [task["mae"]],
-                "Accuracy": [f"{100-float(task['mape'])*100}%"],
+                "Accuracy": [f"{round(100-float(task['mape'])*100, 2)}%"],
                 "Data Source": [task["data_source"]],
                 "Time Column": [task["ts_col"]],
                 "Target": [task["target"]],
