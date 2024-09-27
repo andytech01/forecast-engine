@@ -152,12 +152,13 @@ a[href^="data:application/octet-stream"]:hover {
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 220px;
+  width: 300px;
   background-color: #555;
   color: #fff;
-  text-align: center;
+  text-align: left;
   border-radius: 5px;
   padding: 5px;
+  padding-left: 10px;
   position: absolute;
   z-index: 1;
   bottom: 125%;

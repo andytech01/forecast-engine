@@ -92,7 +92,7 @@ def ml_modeling():
         with col1:
             lable_with_help(
                 "Select Time Series Variable",
-                "This is where you select the time series variable for analysis",
+                "A time series variable shows when data points are collected or recorded at regular time intervals (e.g., daily, monthly, yearly). Time series variable is essential for performing analyses and forecastings",
             )
             if ts_col:
                 ts_col = st.selectbox(
@@ -111,7 +111,7 @@ def ml_modeling():
         with col2:
             lable_with_help(
                 "Select Target Variable",
-                "This is where you select the target for analysis",
+                "The target variable represents the outcome or value you want to predict or analyze. Selecting the correct target is crucial, as it will be used to train models or evaluate performance in predictive analytics",
             )
             if target:
                 target = st.selectbox(
@@ -131,7 +131,7 @@ def ml_modeling():
             feature_cols = data.drop(columns=[ts_col, target]).columns.tolist()
             lable_with_help(
                 "Select Categorical Features",
-                "This is where you select the categorical features for analysis",
+                "Categorical features are variables that represent discrete categories or groups, such as year, month, gender, product type, or region. These features are essential for segmenting the data, enabling the model to treat different categories distinctly and identify relationships within each group",
             )
             category_features = st.multiselect(
                 "Select Categorical Features",
@@ -147,7 +147,7 @@ def ml_modeling():
 
             lable_with_help(
                 "Select Numerical Features",
-                "This is where you select the numerical features for analysis",
+                "Numerical features are continuous variables that represent measurable quantities, such as age, income, temperature, or sales. These features are critical for identifying trends, correlations, and making accurate predictions based on the values in the dataset",
             )
             numerical_features = st.multiselect(
                 "Select Numerical Features",
