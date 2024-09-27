@@ -83,9 +83,8 @@ def quick_start_floating():
     st.markdown(
         """
         <div class="floating-quickstart">
-        
-        ### Quick Start Guide
-        
+        <h4 style="text-align:center;">Quick Start</h4>
+                
         **Step 1: Upload Data**
         - Navigate to the sidebar and upload your dataset in either `.csv` or `.xlsx` format.
         - The data preview will be displayed in the main area once uploaded.

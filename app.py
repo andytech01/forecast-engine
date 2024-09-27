@@ -60,7 +60,7 @@ with st.sidebar:
     choose = option_menu(
         menu_title="",
         options=["ML Modeling", "Forecasting", "History Tasks", "Documentation"],
-        # icons=['lightbulb', 'graph-up', 'card-list'],
+        # icons=["lightbulb", "graph-up", "card-list"],
         icons=[" ", " ", " ", " "],
         menu_icon="app-indicator",
         default_index=0,
@@ -78,6 +78,9 @@ with st.sidebar:
     )
 
 st.sidebar.markdown("---")
+
+if "show_quickstart" not in st.session_state:
+    st.session_state.show_quickstart = False
 
 if choose == "Documentation":
     selected_page = st.sidebar.radio(
@@ -127,11 +130,11 @@ else:
     toggle_quickstart = st.sidebar.checkbox(
         "Show Quick Start Guide", value=st.session_state.show_quickstart
     )
-    # Update session state based on toggle
-    st.session_state.show_quickstart = toggle_quickstart
 
-    if st.session_state.show_quickstart:
+    if toggle_quickstart:
         col1, col2 = st.columns([4.5, 1.5])
+        with col2:
+            quick_start_floating()
     else:
         col1, col2 = st.columns([5.9, 0.1])
 
@@ -161,6 +164,3 @@ else:
             )
             st.markdown("---")
             history_tasks()
-    with col2:
-        if st.session_state.show_quickstart:
-            quick_start_floating()

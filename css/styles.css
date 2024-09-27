@@ -128,6 +128,7 @@ a[href^="data:application/octet-stream"]:hover {
   max-height: 100vh; /* Max height relative to viewport height */
   overflow-y: auto; /* Enable vertical scroll if content exceeds max-height */
 }
+
 .floating-quickstart h3 {
   margin-top: 0;
 }
