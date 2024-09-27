@@ -92,15 +92,15 @@ def parse_filename(filename):
 
 
 def lable_with_help(label, help_message):
-    return st.markdown(
+    st.markdown(
         f"""
-                <div class="flex-container">
-                    <p>{label}</p>
-                    <span class="tooltip">
-                        <span class="question-circle">?</span>
-                        <span class="tooltiptext">{help_message}</span>
-                    </span>
-                </div>
-                """,
+            <div class="flex-container">
+                <p>{label}</p>
+                <span class="tooltip">
+                    <span class="question-circle">?</span>
+                    <span class="tooltiptext">{help_message}</span>
+                </span>
+            </div>
+        """,
         unsafe_allow_html=True,
     )

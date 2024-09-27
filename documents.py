@@ -84,33 +84,61 @@ def quick_start_floating():
         """
         <div class="floating-quickstart">
         <h4 style="text-align:center;">Quick Start</h4>
-                
-        **Step 1: Upload Data**
-        - Navigate to the sidebar and upload your dataset in either `.csv` or `.xlsx` format.
-        - The data preview will be displayed in the main area once uploaded.
 
-        **Step 2: Assign Data Fields**
-        - Select the time series variable and target variable from your dataset.
-        - Optionally, assign categorical and numerical features to improve the model's performance.
+        <details>
+            <summary>Step 1: Upload Data</summary>
+            <ul>
+                <li>Navigate to the sidebar and upload your dataset in either <span style="font-weight:bold; color:#4f8bf9">.csv</span> or <span style="font-weight:bold; color:#4f8bf9">.xlsx</span> format.</li>
+                <li>The data preview will be displayed in the main area once uploaded.</li>
+            </ul>
+        </details>
 
-        **Step 3: Analyze Data**
-        - After assigning the features and target, click **Analyze Data** to inspect the dataset, view summary statistics, and visualize relationships between variables.
+        <details>
+            <summary>Step 2: Assign Data Field</summary>
+            <ul>
+                <li>Select the time series variable and target variable from your dataset.</li>
+                <li>Optionally, assign categorical and numerical features to improve the model's performance.</li>
+            </ul>
+        </details>
 
-        **Step 4: Configure Models**
-        - Choose a machine learning model (e.g., XGBoost) and adjust hyperparameters such as max depth, learning rate, and number of estimators.
-        - After configuration, train the model by clicking the **Train Model** button.
+        <details>
+            <summary>Step 3: Analyze Data</summary>
+            <ul>
+                <li>After assigning the features and target, click <span style="font-weight:bold">Analyze Data</span> to inspect the dataset, view summary statistics, and visualize relationships between variables.</li>
+            </ul>
+        </details>
 
-        **Step 5: Evaluate the Model**
-        - The application will display model evaluation metrics such as **Mean Absolute Error (MAE)** and **Accuracy**, along with feature importance charts and prediction results.
+        <details>
+            <summary>Step 4: Configure Model</summary>
+            <ul>
+                <li>Choose a machine learning model (e.g., XGBoost) and adjust hyperparameters such as max depth, learning rate, and number of estimators.</li>
+                <li>After configuration, train the model by clicking the <span style="font-weight:bold">Train Model</span> button.</li>
+            </ul>
+        </details>
 
-        **Step 6: Forecasting**
-        - To make predictions on new data, upload the dataset under the **Forecasting** section and choose a previously trained model.
-        - The predictions will be displayed alongside actual data, and users can download the results as a `.csv` file.
+        <details>
+            <summary>Step 5: Evaluate the Model</summary>
+            <ul>
+                <li>The application will display model evaluation metrics such as <span style="font-weight:bold">Mean Absolute Error (MAE)</span> and <span style="font-weight:bold">Accuracy</span>, along with feature importance charts and prediction results.</li>
+            </ul>
+        </details>
 
-        **Step 7: Review History Tasks**
-        - Visit the **History Tasks** section to review previous models and download files for future reference.
+        <details>
+            <summary>Step 6: Forecasting</summary>
+            <ul>
+                <li>To make predictions on new data, upload the dataset under the <span style="font-weight:bold">Forecasting</span> section and choose a previously trained model.</li>
+                <li>The predictions will be displayed alongside actual data, and users can download the results as a <span style="font-weight:bold;color:#4f8bf9">.csv</span> file.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Step 7: Review History Tasks</summary>
+            <ul>
+                <li>Visit the <span style="font-weight:bold">History Tasks</span> section to review previous models and download files for future reference.</li>
+            </ul>
+        </details>
         </div>
-        """,
+    """,
         unsafe_allow_html=True,
     )
 

@@ -195,7 +195,7 @@ def ml_modeling():
                 success_message.empty()
                 st.session_state.model_config = False
 
-        if target and features and st.sidebar.button("Analysis Data"):
+        if target and features and st.sidebar.button("Analyze Data"):
             st.session_state.model_config = False
             original_df = data[[ts_col, target] + features].copy()
             for col in category_features:
