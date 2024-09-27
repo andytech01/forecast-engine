@@ -100,7 +100,7 @@ if "show_quickstart" not in st.session_state:
 with st.sidebar:
     choose = option_menu(
         menu_title="",
-        options=["ML Modeling", "Forecasting", "History Tasks", "Docuemntation"],
+        options=["ML Modeling", "Forecasting", "History Tasks", "Documentation"],
         # icons=['lightbulb', 'graph-up', 'card-list'],
         icons=[" ", " ", " ", " "],
         menu_icon="app-indicator",
@@ -120,7 +120,7 @@ with st.sidebar:
 
 st.sidebar.markdown("---")
 
-if choose == "Docuemntation":
+if choose == "Documentation":
     selected_page = st.sidebar.radio(
         "Select a page",
         ["Overview", "Quick Start", "Data Requirements", "Models"],
