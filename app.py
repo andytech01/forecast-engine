@@ -36,51 +36,10 @@ with open("css/content.css", "r") as f:
     content_css = f.read()
     st.markdown(f"<style>{content_css}</style>", unsafe_allow_html=True)
 
-
-st.markdown(
-    """
-    <style>
-        .stRadio {
-            padding-left: 40px;
-        }
-        .stCheckbox {
-            padding-left: 5px;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    """
-    <style>
-    .floating-quickstart {
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        width: 300px;
-        padding: 15px;
-        background-color: #f9f9f9;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        z-index: 100;
-        font-size: 14px;
-        color: #333;
-        max-height: 70vh;  /* Max height relative to viewport height */
-        overflow-y: auto;  /* Enable vertical scroll if content exceeds max-height */
-    }
-    .floating-quickstart h3 {
-        margin-top: 0;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-
 ### Sidebar content
 with open("images/logo.png", "rb") as img_file:
     logo = base64.b64encode(img_file.read()).decode()
+
 
 st.sidebar.markdown(
     f"""

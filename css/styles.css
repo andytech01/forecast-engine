@@ -111,3 +111,80 @@ a[href^="data:application/octet-stream"]:hover {
   margin-top: 0;
   margin-bottom: 3em;
 }
+
+.floating-quickstart {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  width: 300px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  z-index: 100;
+  font-size: 14px;
+  color: #333;
+  max-height: 70vh; /* Max height relative to viewport height */
+  overflow-y: auto; /* Enable vertical scroll if content exceeds max-height */
+}
+.floating-quickstart h3 {
+  margin-top: 0;
+}
+
+.flex-container {
+  display: flex !important;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.flex-container p {
+  margin: 0;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+  cursor: help;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 220px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -110px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 0.9;
+}
+
+.question-circle {
+  background-color: rgba(128, 128, 128, 0.5);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+}
+
+.stRadio {
+  padding-left: 40px;
+}
+.stCheckbox {
+  padding-left: 5px;
+}

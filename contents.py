@@ -89,47 +89,71 @@ def ml_modeling():
         numerical_features = st.session_state.numerical_features
 
         with col1:
+            lable_with_help(
+                "Select Time Series Variable",
+                "This is where you select the time series variable for analysis",
+            )
             if ts_col:
                 ts_col = st.selectbox(
                     "Select Time Series Variable",
                     data.columns.tolist(),
                     index=data.columns.tolist().index(ts_col),
+                    label_visibility="collapsed",
                 )
             else:
                 ts_col = st.selectbox(
-                    "Select Time Series Variable", [""] + data.columns.tolist()
+                    "Select Time Series Variable",
+                    [""] + data.columns.tolist(),
+                    label_visibility="collapsed",
                 )
 
         with col2:
+            lable_with_help(
+                "Select Target Variable",
+                "This is where you select the target for analysis",
+            )
             if target:
                 target = st.selectbox(
                     "Select Target Variable",
                     data.columns.tolist(),
                     index=data.columns.tolist().index(target),
+                    label_visibility="collapsed",
                 )
             else:
                 target = st.selectbox(
-                    "Select Target Variable", [""] + data.columns.tolist()
+                    "Select Target Variable",
+                    [""] + data.columns.tolist(),
+                    label_visibility="collapsed",
                 )
 
         if ts_col and target:
             feature_cols = data.drop(columns=[ts_col, target]).columns.tolist()
+            lable_with_help(
+                "Select Categorical Features",
+                "This is where you select the categorical features for analysis",
+            )
             category_features = st.multiselect(
                 "Select Categorical Features",
                 feature_cols,
                 default=category_features,
                 placeholder="None",
+                label_visibility="collapsed",
             )
 
             numerical_options = [
                 col for col in feature_cols if col not in category_features
             ]
 
+            lable_with_help(
+                "Select Numerical Features",
+                "This is where you select the numerical features for analysis",
+            )
             numerical_features = st.multiselect(
                 "Select Numerical Features",
                 numerical_options,
                 default=numerical_features,
                 placeholder="None",
+                label_visibility="collapsed",
             )
 
             features = numerical_features + category_features
