@@ -1,5 +1,7 @@
 import json
-from click import style
+import time
+import random
+
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
@@ -366,10 +368,10 @@ def ml_modeling():
 
         # ML Modeling in the sidebar
         if target and features and train_button:
-            running_message = st.markdown(
-                '<p style="color:black; background-color:lightyellow; margin:auto; padding:10px; border-radius:5px; text-align:center;">ML Model Training...</p>',
-                unsafe_allow_html=True,
-            )
+            # running_message = st.markdown(
+            #     '<p style="color:black; background-color:lightyellow; margin:auto; padding:10px; border-radius:5px; text-align:center;">ML Model Training...</p>',
+            #     unsafe_allow_html=True,
+            # )
 
             split_rate = 1 - validation_rate
             split_index = int(len(data) * split_rate)
@@ -380,18 +382,60 @@ def ml_modeling():
             y_train = train_df[target]
 
             model = get_model_instance(selected_model, parameters)
-
             model.train(X_train, y_train)
 
-            time.sleep(12)
-            running_message.empty()
+            progress_bar_html = """
+                <div class="progress-container">
+                <div class="progress-bar" style="width:{progress_value}%">
+                    {message}
+                </div>
+                </div>
+            """
+            progress_bar = st.empty()
+            progress_value = 0
+            progress_bar.markdown(
+                progress_bar_html.format(progress_value=progress_value, message=""),
+                unsafe_allow_html=True,
+            )
 
-            success_message = st.markdown(
-                '<p style="color:black; background-color:lightgreen; margin:auto; padding:10px; border-radius:5px; text-align:center;">Train Successfully!</p>',
+            while progress_value < 100:
+                increment = random.randint(1, 5)
+                time.sleep(increment * 0.2)
+                progress_value = min(100, progress_value + increment)
+                if progress_value >= 100:
+                    break
+
+                if progress_value <= 5:
+                    message = ""
+                elif progress_value <= 15:
+                    message = f"Training..."
+                else:
+                    message = f"Training {progress_value}% Completed"
+                progress_bar.markdown(
+                    progress_bar_html.format(
+                        progress_value=progress_value,
+                        message=message,
+                    ),
+                    unsafe_allow_html=True,
+                )
+
+            progress_bar.markdown(
+                progress_bar_html.format(
+                    progress_value=100, message="Training 100% Completed"
+                ),
+                unsafe_allow_html=True,
+            )
+
+            # running_message.empty()
+            time.sleep(0.5)
+            progress_bar.markdown(
+                progress_bar_html.format(
+                    progress_value=100, message="Train Successfully!"
+                ),
                 unsafe_allow_html=True,
             )
             time.sleep(1)
-            success_message.empty()
+            progress_bar.empty()
 
             # Predict the test data
             X_test = test_df[features]
