@@ -1,7 +1,41 @@
 .big-font {
-	font-size: 25px !important;
-	font-weight: bold;
-	text-align: center;
-	margin-top: 0 !important;
-	margin-bottom: 2rem !important;
+  font-size: 25px !important;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0 !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Adjusting the sidebar position */
+[data-testid="stSidebarUserContent"] {
+  padding-top: 0rem;
+}
+
+/* Adjusting the sidebar width and color*/
+[data-testid="stSidebar"] {
+  background-image: linear-gradient(#ebf6ff, #ebf6ff);
+  max-width: 500px;
+  /* Adding shadow to the div */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.1);
+  transition: background 2s ease, box-shadow 0.5s ease;
+  animation: slide-from-left 1s ease-out forwards;
+}
+
+@keyframes slide-from-left {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+[data-testid="stFileUploadDropzone"] {
+  /* Adding shadow to the div */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+[data-testid="stFileUploader"] * {
+  color: #201547;
 }
