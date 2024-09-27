@@ -14,7 +14,7 @@ from contents import *
 st.set_page_config(
     page_title="Forecasting Engine",
     page_icon="images/logo-white-rgb.png",
-    # layout="wide",
+    layout="wide",
     initial_sidebar_state="expanded",
 )
 
@@ -130,30 +130,37 @@ else:
     # Update session state based on toggle
     st.session_state.show_quickstart = toggle_quickstart
 
-    if choose == "ML Modeling":
-        st.markdown(
-            """
-            <div class="content-title">💡 Machine Learning Modeling</div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.markdown("---")
-        ml_modeling()
-
-    elif choose == "Forecasting":
-        st.markdown(
-            '<div class="content-title">📈 Forecasting</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown("---")
-        forecasting()
-
-    elif choose == "History Tasks":
-        st.markdown(
-            '<div class="content-title">📜 History Tasks</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown("---")
-        history_tasks()
     if st.session_state.show_quickstart:
-        quick_start_floating()
+        col1, col2 = st.columns([4.5, 1.5])
+    else:
+        col1, col2 = st.columns([5.9, 0.1])
+
+    with col1:
+        if choose == "ML Modeling":
+            st.markdown(
+                """
+                <div class="content-title">💡 Machine Learning Modeling</div>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.markdown("---")
+            ml_modeling()
+
+        elif choose == "Forecasting":
+            st.markdown(
+                '<div class="content-title">📈 Forecasting</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown("---")
+            forecasting()
+
+        elif choose == "History Tasks":
+            st.markdown(
+                '<div class="content-title">📜 History Tasks</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown("---")
+            history_tasks()
+    with col2:
+        if st.session_state.show_quickstart:
+            quick_start_floating()

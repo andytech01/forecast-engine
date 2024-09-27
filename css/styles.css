@@ -114,7 +114,8 @@ a[href^="data:application/octet-stream"]:hover {
 
 .floating-quickstart {
   position: fixed;
-  top: 100px;
+  top: 60px;
+  bottom: 40px;
   right: 20px;
   width: 300px;
   padding: 15px;
@@ -124,7 +125,7 @@ a[href^="data:application/octet-stream"]:hover {
   z-index: 100;
   font-size: 14px;
   color: #333;
-  max-height: 70vh; /* Max height relative to viewport height */
+  max-height: 100vh; /* Max height relative to viewport height */
   overflow-y: auto; /* Enable vertical scroll if content exceeds max-height */
 }
 .floating-quickstart h3 {
