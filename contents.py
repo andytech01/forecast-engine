@@ -264,13 +264,23 @@ def ml_modeling():
             )
 
             # TODO: Add more models
+            lable_with_help(
+                "Select ML Model",
+                "Choose the algorithm for time series forecasting, such as XGBoost for advanced boosting techniques, Prophet for handling seasonality and trends, or Linear Regression for simpler time-dependent relationships. The selected model will impact the accuracy and interpretability of your forecast",
+            )
             selected_model = st.selectbox(
-                "Select ML Model", ["XGBoostRegressor", "Prophet", "Linear Regression"]
+                "Select ML Model",
+                ["XGBoostRegressor", "Prophet", "Linear Regression"],
+                label_visibility="collapsed",
             )
 
             # selected_model = "XGBoostRegressor"
 
             if selected_model == "XGBoostRegressor":
+                lable_with_help(
+                    "Select Objective",
+                    "The objective function defines the type of error the model will try to minimize during training. Different options, such as squared error, absolute error, or Tweedie, are suited for different types of data and loss behaviors in time series forecasting",
+                )
                 objective = st.selectbox(
                     "Objective",
                     [
@@ -280,12 +290,26 @@ def ml_modeling():
                         "reg:gamma",
                         "reg:tweedie",
                     ],
+                    label_visibility="collapsed",
                 )
                 col1, col2 = st.columns(2)
 
                 with col1:
+                    lable_with_help(
+                        "Max Depth",
+                        "This controls the maximum number of splits along any branch of the decision tree, allowing the model to capture more complex patterns. However, increasing the depth can cause the model to overfit, making it too sensitive to noise in the training data and reducing its ability to generalize to unseen data",
+                    )
                     max_depth = st.slider(
-                        "Max Depth", min_value=1, max_value=10, value=4, step=1
+                        "Max Depth",
+                        min_value=1,
+                        max_value=10,
+                        value=4,
+                        step=1,
+                        label_visibility="collapsed",
+                    )
+                    lable_with_help(
+                        "Learning Rate",
+                        "The learning rate controls the step size during training. Lower values make the model learn slower but more accurately, while higher values can speed up training but may cause the model to overshoot the optimal solution",
                     )
                     learning_rate = st.slider(
                         "Learning Rate",
@@ -294,15 +318,26 @@ def ml_modeling():
                         value=0.03,
                         step=0.005,
                         format="%.3f",
+                        label_visibility="collapsed",
                     )
 
                 with col2:
+                    lable_with_help(
+                        "Number of Estimators",
+                        "The number of estimators defines the number of decision trees to build during training. More trees can improve the model's accuracy, but training time will increase. It's essential to find the right balance between model performance and computational resources",
+                    )
                     n_estimators = st.slider(
                         "Number of Estimators",
                         min_value=100,
                         max_value=500,
                         value=200,
                         step=50,
+                        label_visibility="collapsed",
+                    )
+
+                    lable_with_help(
+                        "Validation Rate",
+                        "The validation rate determines the proportion of the training data that will be used for validating model performance. A higher validation rate can improve the model's ability to generalize to unseen data. However, allocating more data for validation reduces the data available for training, which may impact the model's accuracy",
                     )
 
                     validation_rate = st.slider(
@@ -311,6 +346,7 @@ def ml_modeling():
                         max_value=0.4,
                         value=0.2,
                         step=0.05,
+                        label_visibility="collapsed",
                     )
 
                 # Select the hyperparameters for XGBoost
