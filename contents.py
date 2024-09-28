@@ -7,7 +7,6 @@ import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
 import time
-from sqlalchemy import desc
 import streamlit as st
 
 import plotly.graph_objects as go
@@ -410,7 +409,7 @@ def ml_modeling():
                 elif progress_value <= 15:
                     message = f"Training..."
                 else:
-                    message = f"Training {progress_value}% Completed"
+                    message = f"Training... {progress_value}%"
                 progress_bar.markdown(
                     progress_bar_html.format(
                         progress_value=progress_value,
@@ -421,7 +420,7 @@ def ml_modeling():
 
             progress_bar.markdown(
                 progress_bar_html.format(
-                    progress_value=100, message="Training 100% Completed"
+                    progress_value=100, message="Training... 100%"
                 ),
                 unsafe_allow_html=True,
             )

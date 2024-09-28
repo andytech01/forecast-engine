@@ -39,3 +39,7 @@
 [data-testid="stFileUploader"] * {
   color: #201547;
 }
+
+[data-testid="baseButton-header"] {
+  display: none;
+}
