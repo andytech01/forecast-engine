@@ -89,7 +89,7 @@ a[href^="data:application/octet-stream"]:hover {
 
 [data-testid="stMarkdownContainer"] hr {
   margin-top: 0;
-  margin-bottom: 3em;
+  margin-bottom: 2em;
 }
 
 .floating-quickstart {

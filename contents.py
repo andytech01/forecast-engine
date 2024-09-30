@@ -8,6 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
 import time
 import streamlit as st
+import streamlit.components.v1 as components
 
 import plotly.graph_objects as go
 import plotly.express as px
@@ -63,12 +64,54 @@ def ml_modeling():
         st.session_state.uploaded_file = uploaded_file
 
     if not st.session_state.uploaded_file:
+        # st.markdown(
+        #     '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">Please upload your dataset, select target and feature variable to proceed with Machine Learning Modeling</p>',
+        #     unsafe_allow_html=True,
+        # )
         st.markdown(
-            '<p style="color:white; font-size: x-large; background-color:#4f8bf9; padding:15px; border-radius: 5px; text-align:center">Please upload your dataset, select target and feature variable to proceed with Machine Learning Modeling</p>',
+            """
+            <div class="content-title">👋🏻 Welcome to Forecast Engine</div>
+            """,
             unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        components.html(
+            """
+            <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.28/build/spline-viewer.js"></script>
+            <spline-viewer url="https://prod.spline.design/q-UvWkqbD88otwYg/scene.splinecode"></spline-viewer>
+            """,
+            height=500,
+        )
+        st.subheader("System Overview")
+        st.markdown(
+            """
+        The **Forecast Engine** is a user-friendly application that enables users to build Machine Learning models and perform time series forecasting simply by drag and drop. Through a simple interface and actions, users can upload datasets, configure models, adjust parameters, and generate predictions. 
+        """
+        )
+        st.subheader("Quick Start")
+
+        with open("quick_start/index.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+
+        with open("quick_start/styles.css", "r", encoding="utf-8") as css_file:
+            css_content = f"<style>{css_file.read()}</style>"
+
+        components.html(
+            f"""
+                {css_content}
+                {html_content}
+            """,
+            height=1900,
         )
 
     else:
+        st.markdown(
+            """
+            <div class="content-title">💡 Forecast Engine</div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
         st.session_state.uploaded_file.seek(0)
         uploaded_file = st.session_state.uploaded_file
         if uploaded_file.name.endswith(".csv"):

@@ -14,7 +14,7 @@ from contents import *
 
 # Set the page config
 st.set_page_config(
-    page_title="Forecasting Engine",
+    page_title="Forecast Engine",
     page_icon="images/logo-white-rgb.png",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -49,7 +49,7 @@ st.sidebar.markdown(
         <div style="text-align: center; margin: 2em 0;">
             <img src="data:image/png;base64,{logo}" width="200"/>
         </div>
-        <!-- <div class='big-font'>Forecasting Engine</div> -->
+        <!-- <div class='big-font'>Forecast Engine</div> -->
     </div>""",
     unsafe_allow_html=True,
 )
@@ -62,14 +62,13 @@ with st.sidebar:
     choose = option_menu(
         menu_title="",
         options=[
-            "Home",
-            "Forecasting Engine",
+            "Forecast Engine",
             "Make Prediction",
             "History Tasks",
             "Documentation",
         ],
         # icons=["lightbulb", "graph-up", "card-list"],
-        icons=[" ", " ", " ", " ", " "],
+        icons=[" ", " ", " ", " "],
         menu_icon="app-indicator",
         default_index=0,
         styles={
@@ -87,37 +86,7 @@ with st.sidebar:
 
 st.sidebar.markdown("---")
 
-if choose == "Home":
-    st.markdown(
-        """
-        <div class="content-title">👋🏻 Welcome</div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown("---")
-    st.subheader("System Overview")
-    st.markdown(
-        """
-    The **Forecasting Engine** is a user-friendly application that enables users to build Machine Learning models and perform time series forecasting simply by drag and drop. Through a simple interface and actions, users can upload datasets, configure models, adjust parameters, and generate predictions. 
-    """
-    )
-    st.subheader("Quick Start")
-
-    with open("quick_start/index.html", "r", encoding="utf-8") as f:
-        html_content = f.read()
-
-    with open("quick_start/styles.css", "r", encoding="utf-8") as css_file:
-        css_content = f"<style>{css_file.read()}</style>"
-
-    components.html(
-        f"""
-            {css_content}
-            {html_content}
-        """,
-        height=1800,
-    )
-
-elif choose == "Documentation":
+if choose == "Documentation":
     selected_page = st.sidebar.radio(
         "Select a page",
         ["Overview", "Quick Start", "Data Requirements", "Models"],
@@ -131,7 +100,7 @@ elif choose == "Documentation":
         system_overview()
     if selected_page == "Quick Start":
         st.markdown(
-            '<div class="content-title">📘 Quick Start for Forecasting Engine</div>',
+            '<div class="content-title">📘 Quick Start for Forecast Engine</div>',
             unsafe_allow_html=True,
         )
         st.markdown("---")
@@ -173,14 +142,7 @@ else:
         col1, col2 = st.columns([5.9, 0.1])
 
     with col1:
-        if choose == "Forecasting Engine":
-            st.markdown(
-                """
-                <div class="content-title">💡 Forecasting Engine</div>
-                """,
-                unsafe_allow_html=True,
-            )
-            st.markdown("---")
+        if choose == "Forecast Engine":
             ml_modeling()
 
         elif choose == "Make Prediction":
