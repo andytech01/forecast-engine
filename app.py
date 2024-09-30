@@ -5,6 +5,8 @@ from documents import *
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 import streamlit as st
+import streamlit.components.v1 as components
+
 from streamlit_option_menu import option_menu
 import base64
 
@@ -60,13 +62,14 @@ with st.sidebar:
     choose = option_menu(
         menu_title="",
         options=[
+            "Home",
             "Forecasting Engine",
             "Make Prediction",
             "History Tasks",
             "Documentation",
         ],
         # icons=["lightbulb", "graph-up", "card-list"],
-        icons=[" ", " ", " ", " "],
+        icons=[" ", " ", " ", " ", " "],
         menu_icon="app-indicator",
         default_index=0,
         styles={
@@ -84,10 +87,37 @@ with st.sidebar:
 
 st.sidebar.markdown("---")
 
-if "show_quickstart" not in st.session_state:
-    st.session_state.show_quickstart = False
+if choose == "Home":
+    st.markdown(
+        """
+        <div class="content-title">👋🏻 Welcome</div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown("---")
+    st.subheader("System Overview")
+    st.markdown(
+        """
+    The **Forecasting Engine** is a user-friendly application that enables users to build Machine Learning models and perform time series forecasting simply by drag and drop. Through a simple interface and actions, users can upload datasets, configure models, adjust parameters, and generate predictions. 
+    """
+    )
+    st.subheader("Quick Start")
 
-if choose == "Documentation":
+    with open("quick_start/index.html", "r", encoding="utf-8") as f:
+        html_content = f.read()
+
+    with open("quick_start/styles.css", "r", encoding="utf-8") as css_file:
+        css_content = f"<style>{css_file.read()}</style>"
+
+    components.html(
+        f"""
+            {css_content}
+            {html_content}
+        """,
+        height=1800,
+    )
+
+elif choose == "Documentation":
     selected_page = st.sidebar.radio(
         "Select a page",
         ["Overview", "Quick Start", "Data Requirements", "Models"],
@@ -129,7 +159,6 @@ if choose == "Documentation":
             unsafe_allow_html=True,
         )
         st.markdown("---")
-
 else:
     # Toggle button for Quick Start visibility
     toggle_quickstart = st.sidebar.checkbox(
