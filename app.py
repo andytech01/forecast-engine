@@ -59,7 +59,12 @@ if "show_quickstart" not in st.session_state:
 with st.sidebar:
     choose = option_menu(
         menu_title="",
-        options=["ML Modeling", "Forecasting", "History Tasks", "Documentation"],
+        options=[
+            "Forecasting Engine",
+            "Make Prediction",
+            "History Tasks",
+            "Documentation",
+        ],
         # icons=["lightbulb", "graph-up", "card-list"],
         icons=[" ", " ", " ", " "],
         menu_icon="app-indicator",
@@ -139,17 +144,17 @@ else:
         col1, col2 = st.columns([5.9, 0.1])
 
     with col1:
-        if choose == "ML Modeling":
+        if choose == "Forecasting Engine":
             st.markdown(
                 """
-                <div class="content-title">💡 Machine Learning Modeling</div>
+                <div class="content-title">💡 Forecasting Engine</div>
                 """,
                 unsafe_allow_html=True,
             )
             st.markdown("---")
             ml_modeling()
 
-        elif choose == "Forecasting":
+        elif choose == "Make Prediction":
             st.markdown(
                 '<div class="content-title">📈 Forecasting</div>',
                 unsafe_allow_html=True,
