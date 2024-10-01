@@ -63,18 +63,18 @@ def quick_start():
     """
     )
 
-    st.write("**Step 6: Forecasting**")
+    st.write("**Step 6: Make Prediction**")
     st.markdown(
         """
-    - To make predictions on new data, upload the dataset under the **Forecasting** section and choose a previously trained model.
+    - To make predictions on new data, upload the dataset under the **Make Prediction** section and choose a previously trained model.
     - The predictions will be displayed alongside actual data, and users can download the results as a `.csv` file.
     """
     )
 
-    st.write("**Step 7: Review History Tasks**")
+    st.write("**Step 7: Review Trained Models**")
     st.markdown(
         """
-    - Visit the **History Tasks** section to review previous models and download files for future reference.
+    - Visit the **Model Hub** section to review previous models and download files for future reference.
     """
     )
 
@@ -124,17 +124,17 @@ def quick_start_floating():
         </details>
 
         <details>
-            <summary>Step 6: Forecasting</summary>
+            <summary>Step 6: Make Prediction</summary>
             <ul>
-                <li>To make predictions on new data, upload the dataset under the <span style="font-weight:bold">Forecasting</span> section and choose a previously trained model.</li>
+                <li>To make predictions on new data, upload the dataset under the <span style="font-weight:bold">Make Prediction</span> section and choose a previously trained model.</li>
                 <li>The predictions will be displayed alongside actual data, and users can download the results as a <span style="font-weight:bold;color:#4f8bf9">.csv</span> file.</li>
             </ul>
         </details>
 
         <details>
-            <summary>Step 7: Review History Tasks</summary>
+            <summary>Step 7: Review Trained Models</summary>
             <ul>
-                <li>Visit the <span style="font-weight:bold">History Tasks</span> section to review previous models and download files for future reference.</li>
+                <li>Visit the <span style="font-weight:bold">Model Hub</span> section to review previous models and download files for future reference.</li>
             </ul>
         </details>
         </div>

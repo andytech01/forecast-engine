@@ -75,6 +75,12 @@ def ml_modeling():
             unsafe_allow_html=True,
         )
         st.markdown("---")
+        st.subheader("System Overview")
+        st.markdown(
+            """
+        The **Forecast Engine** is a user-friendly application that enables users to build Machine Learning models and perform time series forecasting simply by drag and drop. Through a simple interface and actions, users can upload datasets, configure models, adjust parameters, and generate predictions. 
+        """
+        )
         components.html(
             """
             <style>
@@ -99,12 +105,6 @@ def ml_modeling():
             <spline-viewer url="https://prod.spline.design/q-UvWkqbD88otwYg/scene.splinecode"></spline-viewer>
             """,
             height=450,
-        )
-        st.subheader("System Overview")
-        st.markdown(
-            """
-        The **Forecast Engine** is a user-friendly application that enables users to build Machine Learning models and perform time series forecasting simply by drag and drop. Through a simple interface and actions, users can upload datasets, configure models, adjust parameters, and generate predictions. 
-        """
         )
         st.subheader("Quick Start")
 
@@ -772,7 +772,7 @@ def history_tasks():
             "",
             df["Trained Time"].astype(str) + "(" + df["Version"] + ")",
             index=None,
-            placeholder="Select Task",
+            placeholder="Select Model",
             label_visibility="collapsed",
         )
     with col2:

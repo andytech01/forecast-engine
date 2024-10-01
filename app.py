@@ -5,7 +5,6 @@ from documents import *
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from streamlit_option_menu import option_menu
 import base64
@@ -64,7 +63,7 @@ with st.sidebar:
         options=[
             "Forecast Engine",
             "Make Prediction",
-            "History Tasks",
+            "Model Hub",
             "Documentation",
         ],
         # icons=["lightbulb", "graph-up", "card-list"],
@@ -153,9 +152,9 @@ else:
             st.markdown("---")
             forecasting()
 
-        elif choose == "History Tasks":
+        elif choose == "Model Hub":
             st.markdown(
-                '<div class="content-title">📜 History Tasks</div>',
+                '<div class="content-title">📜 Model Hub</div>',
                 unsafe_allow_html=True,
             )
             st.markdown("---")
