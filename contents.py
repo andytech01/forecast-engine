@@ -81,31 +81,31 @@ def ml_modeling():
         The **Forecast Engine** is a user-friendly application that enables users to build Machine Learning models and perform time series forecasting simply by drag and drop. Through a simple interface and actions, users can upload datasets, configure models, adjust parameters, and generate predictions. 
         """
         )
-        components.html(
-            """
-            <style>
-                spline-viewer {
-                    width: 100%;
-                    height: 100vh;
-                    position: relative;
-                }
-                spline-viewer::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 30px; /* 控制模糊区域的高度 */
-                    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
-                    filter: blur(6px); /* 应用模糊效果 */
-                    pointer-events: none; /* 确保不会影响交互 */
-                }
-            </style>
-            <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.28/build/spline-viewer.js"></script>
-            <spline-viewer url="https://prod.spline.design/q-UvWkqbD88otwYg/scene.splinecode"></spline-viewer>
-            """,
-            height=450,
-        )
+        # components.html(
+        #     """
+        #     <style>
+        #         spline-viewer {
+        #             width: 100%;
+        #             height: 100vh;
+        #             position: relative;
+        #         }
+        #         spline-viewer::after {
+        #             content: '';
+        #             position: absolute;
+        #             bottom: 0;
+        #             left: 0;
+        #             width: 100%;
+        #             height: 30px; /* 控制模糊区域的高度 */
+        #             background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+        #             filter: blur(6px); /* 应用模糊效果 */
+        #             pointer-events: none; /* 确保不会影响交互 */
+        #         }
+        #     </style>
+        #     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.28/build/spline-viewer.js"></script>
+        #     <spline-viewer url="https://prod.spline.design/q-UvWkqbD88otwYg/scene.splinecode"></spline-viewer>
+        #     """,
+        #     height=450,
+        # )
         st.subheader("Quick Start")
 
         with open("quick_start/index.html", "r", encoding="utf-8") as f:
